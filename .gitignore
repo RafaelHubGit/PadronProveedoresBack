@@ -1,0 +1,17 @@
+﻿# Archivos y carpetas de Visual Studio
+.vs/
+*.suo
+*.user
+
+# Archivos de configuración y settings
+appsettings*.json
+
+# Archivos de compilación y objetos
+bin/
+obj/
+
+# Archivos de registro
+*.log
+
+# Archivos de user secrets
+secrets.json

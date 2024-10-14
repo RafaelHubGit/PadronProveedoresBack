@@ -1,0 +1,142 @@
+﻿
+
+EXEC sp_ObtenerProveedoresPorNumeroProveedor @NumeroProveedor = NULL;
+
+EXEC sp_ObtenerProveedoresPorNumeroProveedor @NumeroProveedor = '1, 4, 6, 7';
+
+
+CREATE PROCEDURE sp_ObtenerProveedoresPorNumeroProveedor
+    @NumeroProveedor VARCHAR(MAX) = NULL
+AS 
+BEGIN
+    SELECT
+        p.IdProveedor,
+        p.Rfc,
+        p.RazonSocial,
+        p.FechaAlta,
+        p.Activo,
+        (SELECT DISTINCT NumeroProveedor FROM GenProveedorDatos gpd WHERE gpd.IdProveedor = p.IdProveedor) AS NumeroProveedor,
+        DatosProveedores = (
+            SELECT 
+                dp.IdProveedorDatos,
+                dp.NumeroProveedor,
+                dp.NumeroRefrendo,
+                dp.FechaRefrendo,
+                dp.TipoProveedor,
+                dp.Observaciones,
+                dp.SitioWeb,
+                dp.EsRepse,
+                dp.FechaRepse,
+                dp.TieneDocumentos,
+                dp.FechaAlta,
+                dp.Activo,
+                Domicilio = (
+                    SELECT
+                        d.Calle,
+                        d.IdEstado,
+                        (SELECT ce.Estado FROM Direcciones.dbo.CatEstados ce WHERE ce.IdEstado = d.IdEstado) AS Estado,
+                        d.IdMunicipio,
+                        (SELECT cm.Municipio FROM Direcciones.dbo.CatMunicipios cm WHERE cm.IdMunicipio = d.IdMunicipio) AS Municipio,
+                        d.IdColonia,
+                        (SELECT cc.Colonia FROM Direcciones.dbo.CatColonias cc WHERE cc.IdColonia = d.IdColonia) AS Colonia,
+                        d.IdCodigoPostal,
+                        (SELECT ccp.CodigoPostal FROM Direcciones.dbo.CatCodigosPostales ccp WHERE ccp.IdCodigoPostal = d.IdCodigoPostal) AS CodigoPostal,
+                        d.DireccionInternacional,
+                        d.Nota
+                    FROM 
+                        GenDomicilio d
+                    WHERE 
+                        d.IdProveedorDatos = dp.IdProveedorDatos
+                    FOR JSON PATH
+                ),
+                Representantes = (
+                    SELECT 
+                        r.Representante,
+                        r.Tipo,
+                        r.Nota,
+                        r.Activo
+                    FROM 
+                        GenRepresentante r
+                    WHERE 
+                        r.IdProveedorDatos = dp.IdProveedorDatos
+                    ORDER BY 
+                        r.Tipo, r.Representante, r.Activo
+                    FOR JSON PATH
+                ),
+                Contacto = (
+                    SELECT 
+                        c.Tipo,
+                        c.Contactos,
+                        c.Nota,
+                        c.Activo
+                    FROM 
+                        GenContacto c
+                    WHERE 
+                        c.IdProveedorDatos = dp.IdProveedorDatos
+                    ORDER BY 
+                        c.Tipo, c.Contactos, c.Activo
+                    FOR JSON PATH
+                ),
+                GirosComerciales = (
+                    SELECT 
+                        gc.GiroComercial,
+                        pgc.Activo
+                    FROM
+                        CatGiroComercial gc 
+                    LEFT JOIN 
+                        GenProveedor_GiroComercial pgc 
+                    ON
+                        pgc.IdGiroComercial = gc.IdGiroComercial
+                    WHERE 
+                        pgc.IdProveedorDatos = dp.IdProveedorDatos
+                    FOR JSON PATH
+                ),
+                Inactivo = (
+                    SELECT 
+                        pb.Observacion,
+                        pb.FechaInicio,
+                        pb.FechaFin,
+                        pb.FechaDiarioOficialFederacion
+                    FROM 
+                        GenProveedorBloqueado pb
+                    WHERE 
+                        pb.IdProveedor = p.IdProveedor
+                    FOR JSON PATH
+                ),
+                Documentos = (
+            	    SELECT 
+            		    IdDocumentos,
+					    NombreDocumento,
+					    TipoDocumento,
+					    FechaCarga
+            	    FROM 
+            		    GenDocumentos gd 
+            	    WHERE 
+            		    gd.IdProveedorDatos = dp.IdProveedorDatos
+            	    FOR JSON PATH
+                )
+            FROM 
+                GenProveedorDatos dp
+            WHERE 
+                dp.IdProveedor = p.IdProveedor
+            ORDER BY NumeroRefrendo
+            FOR JSON PATH
+        )
+    FROM 
+        GenProveedor p
+    WHERE
+        IdProveedor IN (
+        SELECT
+	        IdProveedor
+        FROM
+	        GenProveedorDatos
+        WHERE
+			1 = 1
+		AND
+            (@NumeroProveedor IS NULL OR NumeroProveedor IN (SELECT value FROM STRING_SPLIT(@NumeroProveedor, ',')))
+        )
+    ORDER BY
+    	NumeroProveedor,
+        p.IdProveedor
+    FOR JSON PATH, ROOT('Proveedores');
+END;
