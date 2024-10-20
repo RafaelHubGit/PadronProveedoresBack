@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
+
+//using Newtonsoft.Json;
 using PadronProveedoresAPI.Models.Project;
 using static PadronProveedoresAPI.Models.Project.ProveedorModel;
 
@@ -6,68 +9,109 @@ namespace PadronProveedoresAPI.Utilities
 {
     public class ProveedorTypeSenseMapping
     {
-
-        public List<string> MappingSchemaTypeSense(List<ProveedorModel.Proveedor> proveedores)
+        //Recibe una lista de proveedores y los transforma a TypeSense Model
+        public List<ProveedorTypeSenseSchema> MappingSchemaTypeSense(List<Proveedor> proveedores)
         {
             var proveedoresTP = proveedores.Select(p => ProveedorToSchemaTS(p)).ToList();
 
             return proveedoresTP;
         }
 
-        public string ProveedorToSchemaTS(ProveedorModel.Proveedor proveedor)
+        //Recibe un proveedor y lo transforma a TypeSense Model
+        public ProveedorTypeSenseSchema ProveedorToSchemaTS(Proveedor proveedor)
         {
-            var TSMapped = new ProveedorTypeSenseSchema
+            var TSMapped = new ProveedorTypeSenseSchema();
+            try
             {
-                idProveedor = proveedor.IdProveedor,
-                rfc = proveedor.Rfc,
-                razonSocial = proveedor.RazonSocial,
-                fechaAlta = proveedor.FechaAlta.ToString("yyyy-MM-dd"),
-                activo = proveedor.Activo,
-                numeroProveedor = proveedor.NumeroProveedor,
-                datosProveedores = new DatosProveedoresTypeSenseSchema
-                {
-                    numeroRefrendo = proveedor.DatosProveedores?.Select(dp => dp.NumeroRefrendo).ToArray(),
-                    tipoProveedor = proveedor.DatosProveedores?.Select(dp => dp.TipoProveedor).ToArray(),
-                    observaciones = proveedor.DatosProveedores?.Select(dp => dp.Observaciones).ToArray(),
-                    esRepse = proveedor.DatosProveedores?.FirstOrDefault()?.EsRepse,
-                    tieneDocumentos = proveedor.DatosProveedores?.FirstOrDefault()?.TieneDocumentos,
-                    domicilio = new DomicilioTypeSenseSchema
-                    {
-                        calle = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.Calle,
-                        estado = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.Estado,
-                        municipio = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.Municipio,
-                        colonia = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.Colonia,
-                        codigoPostal = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.CodigoPostal,
-                        direccionInternacional = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.DireccionInternacional
-                    },
-                    representantes = new RepresentanteTypeSenseSchema
-                    {
-                        representante = proveedor.DatosProveedores?.SelectMany(dp => dp.Representantes).Select(r => r.Representante).ToArray()
-                    },
-                    contacto = new ContactoTypeSenseSchema
-                    {
-                        contactos = proveedor.DatosProveedores?.SelectMany(dp => dp.Contactos).Select(c => c.Contactos).ToArray()
-                    },
-                    girosComerciales = new GirosComercialesTypeSenseSchema
-                    {
-                        giroComercial = proveedor.DatosProveedores?.SelectMany(dp => dp.GirosComerciales).Select(g => g.GiroComercial).ToArray()
-                    },
-                    documentos = new DocumentosTypeSenseSchema
-                    {
-                        nombreDocumento = proveedor.DatosProveedores?.SelectMany(dp => dp.Documentos).Select(d => d.NombreDocumento).ToArray()
-                    },
-                    inactivo = new InactivoTypeSenseSchema
-                    {
-                        observacion = proveedor.DatosProveedores?.SelectMany(dp => dp.Inactivos).Select(i => i.Observacion).FirstOrDefault(),
-                        fechaInicio = proveedor.DatosProveedores?.SelectMany(dp => dp.Inactivos).Select(i => i.FechaInicio).FirstOrDefault().ToString("yyyy-MM-dd"),
-                        fechaFin = proveedor.DatosProveedores?.SelectMany(dp => dp.Inactivos).Select(i => i.FechaFin).FirstOrDefault().ToString("yyyy-MM-dd"),
-                        fechaDiarioOficialFederacion = proveedor.DatosProveedores?.SelectMany(dp => dp.Inactivos).Select(i => i.FechaDiarioOficialFederacion).FirstOrDefault().ToString("yyyy-MM-dd")
-                    }
-                }
-            };
 
-            var TSMappedJson = JsonConvert.SerializeObject(TSMapped);
-            return TSMappedJson;
+                TSMapped.idProveedor = proveedor.IdProveedor;
+                TSMapped.rfc = proveedor.Rfc;
+                TSMapped.razonSocial = proveedor.RazonSocial;
+                TSMapped.fechaAlta = proveedor.FechaAlta.ToString("yyyy-MM-dd");
+                TSMapped.activo = proveedor.Activo;
+                TSMapped.numeroProveedor = proveedor.NumeroProveedor ?? string.Empty;
+
+                TSMapped.datosProveedores = new DatosProveedoresTypeSenseSchema();
+
+                TSMapped.datosProveedores.numeroRefrendo = (proveedor.DatosProveedores?.Select(dp => dp.NumeroRefrendo?.ToString()).ToArray()) ?? Array.Empty<string>();
+                TSMapped.datosProveedores.tipoProveedor = proveedor.DatosProveedores?.Select(dp => dp.TipoProveedor).ToArray() ?? Array.Empty<string>();
+                TSMapped.datosProveedores.observaciones = proveedor.DatosProveedores?.Select(dp => dp.Observaciones).ToArray() ?? Array.Empty<string>();
+                TSMapped.datosProveedores.esRepse = proveedor.DatosProveedores?.Select(dp => dp.EsRepse).ToArray() ?? Array.Empty<bool>();
+                TSMapped.datosProveedores.tieneDocumentos = proveedor.DatosProveedores?.Select(dp => dp.TieneDocumentos).ToArray() ?? Array.Empty<bool>();
+
+                TSMapped.datosProveedores.domicilio = new DomicilioTypeSenseSchema();
+
+                TSMapped.datosProveedores.domicilio.calle = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Calle;
+                TSMapped.datosProveedores.domicilio.estado = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Estado;
+                TSMapped.datosProveedores.domicilio.municipio = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Municipio;
+                TSMapped.datosProveedores.domicilio.colonia = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Colonia;
+                TSMapped.datosProveedores.domicilio.codigoPostal = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.CodigoPostal;
+                TSMapped.datosProveedores.domicilio.direccionInternacional = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.DireccionInternacional;
+
+                TSMapped.datosProveedores.representantes = new RepresentanteTypeSenseSchema();
+                TSMapped.datosProveedores.contacto = new ContactoTypeSenseSchema();
+                TSMapped.datosProveedores.girosComerciales = new GirosComercialesTypeSenseSchema();
+                TSMapped.datosProveedores.documentos = new DocumentosTypeSenseSchema();
+                TSMapped.datosProveedores.inactivo = new InactivoTypeSenseSchema();
+
+                TSMapped.datosProveedores.representantes = new RepresentanteTypeSenseSchema
+                {
+                    representante = proveedor.DatosProveedores?
+                        .Where( dp => dp.Representantes != null )
+                        .SelectMany( dp => dp.Representantes )
+                        .Select( r => r.Representante )
+                        .ToArray() ?? Array.Empty<string>()
+                };
+
+                TSMapped.datosProveedores.contacto = new ContactoTypeSenseSchema
+                {
+                    contactos = proveedor.DatosProveedores?
+                        .Where(dp => dp.Contactos != null)
+                        .SelectMany(dp => dp.Contactos)
+                        .Select(c => c.Contactos)
+                        .ToArray() ?? Array.Empty<string>()
+                };
+
+                TSMapped.datosProveedores.girosComerciales = new GirosComercialesTypeSenseSchema
+                {
+                    giroComercial = proveedor.DatosProveedores?
+                        .Where( dp => dp.GirosComerciales != null )
+                        .SelectMany( dp => dp.GirosComerciales )
+                        .Select( gc => gc.GiroComercial )
+                        .ToArray() ?? Array.Empty<string>()
+                };
+
+                TSMapped.datosProveedores.documentos = new DocumentosTypeSenseSchema
+                {
+                    nombreDocumento = proveedor.DatosProveedores?
+                        .Where( dp => dp.Documentos != null )
+                        .SelectMany( dp => dp.Documentos )
+                        .Select( d => d.NombreDocumento )
+                        .ToArray() ?? Array.Empty<string>()
+                };
+
+                var inactivos = proveedor.DatosProveedores?
+                        .Where( dp => dp.Inactivos != null )
+                        .SelectMany( dp => dp.Inactivos )
+                        .FirstOrDefault();
+
+                TSMapped.datosProveedores.inactivo = new InactivoTypeSenseSchema
+                {
+                    observacion = inactivos?.Observacion ?? string.Empty,
+                    fechaInicio = inactivos?.FechaInicio.ToString("yyyy-MM-dd") ?? string.Empty,
+                    fechaFin = inactivos?.FechaFin.ToString("yyyy-MM-dd") ?? string.Empty,
+                    fechaDiarioOficialFederacion = inactivos?.FechaDiarioOficialFederacion.ToString("yyyy-MM-dd") ?? string.Empty
+                };
+
+
+                //var TSMappedJson = JsonSerializer.Serialize(TSMapped);
+                return TSMapped;
+            }
+            catch (NullReferenceException ex)
+            {
+                Debug.WriteLine($"Error de referencia nula: {ex.Message}");
+                throw new Exception("Error de referencia nula", ex);
+            }
         }
 
         public class ProveedorTypeSenseSchema
@@ -86,8 +130,8 @@ namespace PadronProveedoresAPI.Utilities
             public string[]? numeroRefrendo { get; set; }
             public string[]? tipoProveedor { get; set; }
             public string[]? observaciones { get; set; }
-            public bool? esRepse { get; set; }
-            public bool? tieneDocumentos { get; set; }
+            public bool[]? esRepse { get; set; }
+            public bool[]? tieneDocumentos { get; set; }
             public DomicilioTypeSenseSchema? domicilio { get; set; }
             public RepresentanteTypeSenseSchema? representantes { get; set; }
             public ContactoTypeSenseSchema? contacto { get; set; }

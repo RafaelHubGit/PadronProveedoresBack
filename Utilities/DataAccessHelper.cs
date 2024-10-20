@@ -23,7 +23,7 @@ namespace PadronProveedoresAPI.Utilities
                 // Si ya hay contenido en la cadena JSON, agrega una coma para separar los elementos
                 if (!string.IsNullOrEmpty(jsonBuilder.ToString()))
                 {
-                    jsonBuilder.Append(",");
+                    jsonBuilder.Append("");
                 }
 
                 // Obtiene el valor de la primera columna de la fila actual y lo agrega a la cadena JSON

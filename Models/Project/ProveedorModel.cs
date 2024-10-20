@@ -1,4 +1,6 @@
-﻿namespace PadronProveedoresAPI.Models.Project
+﻿using System.Text.Json.Serialization;
+
+namespace PadronProveedoresAPI.Models.Project
 {
     public class ProveedorModel
     {
@@ -9,6 +11,8 @@
             public string? RazonSocial { get; set; }
             public DateTime FechaAlta { get; set; }
             public bool Activo { get; set; }
+
+            [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
             public string? NumeroProveedor { get; set; }
             public List<DatosProveedor>? DatosProveedores { get; set; }
         }
@@ -16,7 +20,11 @@
         public class DatosProveedor
         {
             public int IdProveedorDatos { get; set; }
+
+            [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
             public string? NumeroProveedor { get; set; }
+
+            [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
             public string? NumeroRefrendo { get; set; }
             public DateTime? FechaRefrendo { get; set; }
             public string? TipoProveedor { get; set; }
@@ -27,7 +35,7 @@
             public bool TieneDocumentos { get; set; }
             public DateTime FechaAlta { get; set; }
             public bool Activo { get; set; }
-            public Domicilio? Domicilio { get; set; }
+            public List<Domicilio>? Domicilio { get; set; }
             public List<Representantes>? Representantes { get; set; }
             public List<Contacto>? Contactos { get; set; }
             public List<GirosComerciales>? GirosComerciales { get; set; }

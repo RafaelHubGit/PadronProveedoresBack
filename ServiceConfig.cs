@@ -1,18 +1,38 @@
-﻿using PadronProveedoresAPI.Data.Repository.Entities;
+﻿using Microsoft.Extensions.Options;
+using PadronProveedoresAPI.Data.Repository.Entities;
 using PadronProveedoresAPI.Data.Repository.Project;
 using PadronProveedoresAPI.Services.Entities;
 using PadronProveedoresAPI.Services.Project;
+using PadronProveedoresAPI.Settings;
+using PadronProveedoresAPI.Utilities;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace PadronProveedoresAPI
 {
     public static class ServiceConfig
     {
-        public static void AddServices(this IServiceCollection services ) {
+        public static void AddServices(this IServiceCollection services, IConfiguration configuration) {
 
             //Project 
-            services.AddScoped<ProveedorRepository>();
             services.AddScoped<ProveedorService>();
+            services.AddScoped<ProveedorRepository>();
+
+            //TypeSense
+            services.Configure<TypeSenseSettings>(configuration.GetSection("TypeSenseSettings"));
+            services.AddScoped<ProveedorTypeSenseMapping>();
+            services.AddScoped<TypeSenseService>(sp =>
+            {
+                var pRepository = sp.GetRequiredService<ProveedorService>();
+                var typeSenseSettings = sp.GetRequiredService<IOptions<TypeSenseSettings>>().Value;
+
+                Debug.WriteLine("typeSenseSettings : " + typeSenseSettings);
+                Debug.WriteLine("VALOR URL : " + typeSenseSettings.ServerUrl);
+                Debug.WriteLine("VALOR KEY : " + typeSenseSettings.ApiKey);
+
+                return new TypeSenseService(typeSenseSettings.ServerUrl, typeSenseSettings.ApiKey, pRepository);
+            });
+
 
 
             // Entities
