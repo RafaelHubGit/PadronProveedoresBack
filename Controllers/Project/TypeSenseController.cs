@@ -8,8 +8,8 @@ namespace PadronProveedoresAPI.Controllers.Project
     public class TypeSenseController : Controller
     {
         private readonly TypeSenseService _typeSenseService;
-        public TypeSenseController( TypeSenseService typeSenseService) 
-        { 
+        public TypeSenseController(TypeSenseService typeSenseService)
+        {
             _typeSenseService = typeSenseService;
         }
 
@@ -19,6 +19,13 @@ namespace PadronProveedoresAPI.Controllers.Project
         {
             await _typeSenseService.IndexaPorveedores();
             return Ok();
+        }
+
+        [HttpGet("All")]
+        public async Task<ActionResult> GetAllProveedores()
+        {
+            var proveedoresTS = await _typeSenseService.GetAllDocumentsAsync();
+            return Ok(proveedoresTS);
         }
 
     }

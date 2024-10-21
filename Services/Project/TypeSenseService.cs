@@ -40,7 +40,7 @@ namespace PadronProveedoresAPI.Services.Project
             // Convierte el json al modelo de Proveedores 
             var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores);
 
-            var mappingInstance = new Utilities.ProveedorTypeSenseMapping();
+            var mappingInstance = new ProveedorTypeSenseMapping();
             // Convierte del modelo de proveedores al modelo de TypeSense
             var proveedoresListaTypeSenseMapped = mappingInstance.MappingSchemaTypeSense(proveedoresLista.ToList());
 
@@ -52,12 +52,26 @@ namespace PadronProveedoresAPI.Services.Project
                 var documentJson = JsonSerializer.Serialize(proveedor);
 
                 var upsertResult = await _typeSenseUtilities.UpsertDocumentAsync(collectionName, documentJson);
-                Console.WriteLine($"Document Upserted Numero de proveedor: { proveedor.numeroProveedor }");
+                Console.WriteLine($"Document Upserted Numero de proveedor: { proveedor.numeroProveedor } --- {upsertResult}");
             }
 
             return true;
         }
 
-       
+        public async Task<string> GetAllDocumentsAsync(string collectionName = "proveedores")
+        {
+            var searchParameters = new SearchParameters
+            {
+                q = "*", // Consulta vacía para recuperar todos los documentos
+                limit = 1000 // Límite de documentos por página (opcional)
+                //IncludeFields = "*", // Incluir todos los campos (opcional)
+            };
+
+            var response = await _typeSenseUtilities.SearchAsync(collectionName, searchParameters);
+
+            return response;
+        }
+
+
     }
 }

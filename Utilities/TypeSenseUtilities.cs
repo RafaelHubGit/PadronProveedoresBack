@@ -1,6 +1,9 @@
 ﻿using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using static PadronProveedoresAPI.Utilities.ProveedorTypeSenseMapping;
+using PadronProveedoresAPI.Utilities;
+using PadronProveedoresAPI.Models.Project;
 
 namespace PadronProveedoresAPI.Utilities
 {
@@ -106,5 +109,27 @@ namespace PadronProveedoresAPI.Utilities
             }
         }
 
+        public async Task<string> SearchAsync(string collectionName, SearchParameters searchParameters)
+        {
+            var queryString = $"?q={searchParameters.q}&limit={searchParameters.limit}";
+            var url = $"/collections/{collectionName}/documents/search{queryString}";
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var jsonDoc = JsonDocument.Parse(responseBody);
+
+            var documents = jsonDoc.RootElement.GetProperty("hits")
+                .EnumerateArray()
+                .Select(hit => hit.GetProperty("document").GetRawText())
+                .ToList();
+
+            var documentsStr = string.Join(", ", documents);
+
+            return documentsStr;
+        }
+
     }
+    
 }
