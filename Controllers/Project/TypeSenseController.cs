@@ -28,5 +28,11 @@ namespace PadronProveedoresAPI.Controllers.Project
             return Ok(proveedoresTS);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetProveedoresQuery([FromQuery] string searchTerm, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 100)
+        {
+            var proveedoresTs = _typeSenseService.GetProveedoresQuery("proveedores",searchTerm, pageNumber, pageSize);
+            return Ok(proveedoresTs);
+        }
     }
 }

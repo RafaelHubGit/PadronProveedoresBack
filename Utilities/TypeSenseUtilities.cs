@@ -109,9 +109,30 @@ namespace PadronProveedoresAPI.Utilities
             }
         }
 
-        public async Task<string> SearchAsync(string collectionName, SearchParameters searchParameters)
+        public async Task<string> GetAllProveedores(string collectionName, SearchParameters searchParameters)
         {
             var queryString = $"?q={searchParameters.q}&limit={searchParameters.limit}";
+            var url = $"/collections/{collectionName}/documents/search{queryString}";
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var jsonDoc = JsonDocument.Parse(responseBody);
+
+            var documents = jsonDoc.RootElement.GetProperty("hits")
+                .EnumerateArray()
+                .Select(hit => hit.GetProperty("document").GetRawText())
+                .ToList();
+
+            var documentsStr = string.Join(", ", documents);
+
+            return documentsStr;
+        }
+
+        public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
+        {
+            var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&limit={searchParameters.limit}";
             var url = $"/collections/{collectionName}/documents/search{queryString}";
 
             var response = await _httpClient.GetAsync(url);

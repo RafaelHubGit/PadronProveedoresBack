@@ -2,6 +2,7 @@
 using PadronProveedoresAPI.Data.Repository.Project;
 using PadronProveedoresAPI.Models.Project;
 using PadronProveedoresAPI.Utilities;
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -67,7 +68,21 @@ namespace PadronProveedoresAPI.Services.Project
                 //IncludeFields = "*", // Incluir todos los campos (opcional)
             };
 
-            var response = await _typeSenseUtilities.SearchAsync(collectionName, searchParameters);
+            var response = await _typeSenseUtilities.GetAllProveedores(collectionName, searchParameters);
+
+            return response;
+        }
+
+        public async Task<string> GetProveedoresQuery(string collectionName = "proveedores", string query = "*",int pageNumber = 1, int pageSize = 100) 
+        {
+            var searchParameters = new SearchParameters 
+            { 
+                q = query,
+                limit = pageSize,
+                page = pageNumber
+            };
+
+            var response = await _typeSenseUtilities.GetProveedoresQuery(collectionName, searchParameters);
 
             return response;
         }

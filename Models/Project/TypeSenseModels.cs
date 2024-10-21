@@ -10,6 +10,7 @@ namespace PadronProveedoresAPI.Models.Project
     {
         public string q { get; set; }
         public int limit { get; set; }
+        public int page { get; set; }
     }
 
     public class SearchResponse
