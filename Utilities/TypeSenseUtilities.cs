@@ -55,7 +55,9 @@ namespace PadronProveedoresAPI.Utilities
                     new { name = "datosProveedores.inactivo.fechaFin", type = "string", facet = false, optional = true },
                     new { name = "datosProveedores.inactivo.fechaDiarioOficialFederacion", type = "string", facet = false, optional = true }
 
-                }
+                },
+                default_sorting_field = "idProveedor", // Campo para ordenar resultados
+                query_by = new[] { "*" } // Permitir búsqueda en todos los campos
             };
 
             var schemaJson = JsonSerializer.Serialize(schema);
@@ -133,6 +135,12 @@ namespace PadronProveedoresAPI.Utilities
         public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
         {
             var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&limit={searchParameters.limit}";
+
+            if (!string.IsNullOrEmpty(searchParameters.query_by))
+            {
+                queryString += $"&query_by={searchParameters.query_by}";
+            }
+
             var url = $"/collections/{collectionName}/documents/search{queryString}";
 
             var response = await _httpClient.GetAsync(url);
@@ -147,6 +155,7 @@ namespace PadronProveedoresAPI.Utilities
                 .ToList();
 
             var documentsStr = string.Join(", ", documents);
+            //var documentsJson = JsonSerializer.Serialize(documents);
 
             return documentsStr;
         }

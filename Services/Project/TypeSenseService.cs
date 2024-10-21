@@ -75,12 +75,30 @@ namespace PadronProveedoresAPI.Services.Project
 
         public async Task<string> GetProveedoresQuery(string collectionName = "proveedores", string query = "*",int pageNumber = 1, int pageSize = 100) 
         {
-            var searchParameters = new SearchParameters 
-            { 
-                q = query,
-                limit = pageSize,
-                page = pageNumber
-            };
+            var partes = query.Split(':');
+            SearchParameters searchParameters;
+
+            if (partes.Length == 2)
+            {
+                var campo = partes[0].Trim();
+                var valor = partes[1].Trim();
+                searchParameters = new SearchParameters
+                {
+                    q = $"{campo}: {valor}", // Busca en el campo específico
+                    limit = pageSize,
+                    page = pageNumber
+                };
+            }
+            else
+            {
+                searchParameters = new SearchParameters
+                {
+                    q = query, // Busca en todos los campos
+                    limit = pageSize,
+                    page = pageNumber,
+                    query_by = "numeroProveedor"
+                };
+            }
 
             var response = await _typeSenseUtilities.GetProveedoresQuery(collectionName, searchParameters);
 
