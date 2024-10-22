@@ -95,7 +95,7 @@ namespace PadronProveedoresAPI.Services.Project
             {
                 //var fields = typeof(ProveedorTypeSenseSchema).GetProperties().Select(p => p.Name);
                 var fields = typeof(ProveedorTypeSenseSchema)
-                    .GetProperties()
+                    .GetProperties() 
                     .Select(p => new
                     {
                         Name = p.GetCustomAttributes(typeof(JsonPropertyNameAttribute), false)
