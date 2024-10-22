@@ -8,10 +8,11 @@ namespace PadronProveedoresAPI.Models.Project
     }
     public class SearchParameters
     {
-        public string q { get; set; }
+        public string? q { get; set; }
         public int limit { get; set; }
         public int page { get; set; }
         public string? query_by { get; set; }
+        public string? filter_by { get; set; }
     }
 
     public class SearchResponse

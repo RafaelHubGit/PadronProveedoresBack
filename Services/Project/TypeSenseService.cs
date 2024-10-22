@@ -6,6 +6,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using static PadronProveedoresAPI.Utilities.ProveedorTypeSenseMapping;
 
 namespace PadronProveedoresAPI.Services.Project
@@ -84,19 +85,32 @@ namespace PadronProveedoresAPI.Services.Project
                 var valor = partes[1].Trim();
                 searchParameters = new SearchParameters
                 {
-                    q = $"{campo}: {valor}", // Busca en el campo específico
+                    q = valor, // Busca en el campo específico
                     limit = pageSize,
-                    page = pageNumber
+                    page = pageNumber,
+                    query_by = campo
                 };
             }
             else
             {
+                //var fields = typeof(ProveedorTypeSenseSchema).GetProperties().Select(p => p.Name);
+                var fields = typeof(ProveedorTypeSenseSchema)
+                    .GetProperties()
+                    .Select(p => new
+                    {
+                        Name = p.GetCustomAttributes(typeof(JsonPropertyNameAttribute), false)
+                            .Cast<JsonPropertyNameAttribute>()
+                            .FirstOrDefault()?.Name,
+                        Type = p.PropertyType.Name
+                    });
+
                 searchParameters = new SearchParameters
                 {
                     q = query, // Busca en todos los campos
                     limit = pageSize,
                     page = pageNumber,
-                    query_by = "numeroProveedor"
+                    //query_by = string.Join(", ", fields)
+                    query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name))
                 };
             }
 
