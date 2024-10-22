@@ -36,8 +36,8 @@ namespace PadronProveedoresAPI.Services.Project
             var createCollectionResult = await _typeSenseUtilities.CreateCollectionAsync(collectionName);
             Console.WriteLine("coleccion creada : " );
 
-            //var proveedores = await _service.GetAllProveedoresAsync();
-            var proveedores = await _service.GetProveedorScrollAsync(0, 2);
+            var proveedores = await _service.GetAllProveedoresAsync();
+            //var proveedores = await _service.GetProveedorScrollAsync(0, 2);
 
             // Convierte el json al modelo de Proveedores 
             var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores);
@@ -65,7 +65,7 @@ namespace PadronProveedoresAPI.Services.Project
             var searchParameters = new SearchParameters
             {
                 q = "*", // Consulta vacía para recuperar todos los documentos
-                limit = 1000 // Límite de documentos por página (opcional)
+                per_page = 250 // Límite de documentos por página (opcional)
                 //IncludeFields = "*", // Incluir todos los campos (opcional)
             };
 
@@ -74,7 +74,7 @@ namespace PadronProveedoresAPI.Services.Project
             return response;
         }
 
-        public async Task<string> GetProveedoresQuery(string collectionName = "proveedores", string query = "*",int pageNumber = 1, int pageSize = 100) 
+        public async Task<string> GetProveedoresQuery(string collectionName = "proveedores", string query = "*",int pageNumber = 1, int pageSize = 250) 
         {
             var partes = query.Split(':');
             SearchParameters searchParameters;
@@ -86,7 +86,7 @@ namespace PadronProveedoresAPI.Services.Project
                 searchParameters = new SearchParameters
                 {
                     q = valor, // Busca en el campo específico
-                    limit = pageSize,
+                    per_page = pageSize,
                     page = pageNumber,
                     query_by = campo
                 };
@@ -107,7 +107,7 @@ namespace PadronProveedoresAPI.Services.Project
                 searchParameters = new SearchParameters
                 {
                     q = query, // Busca en todos los campos
-                    limit = pageSize,
+                    per_page = pageSize,
                     page = pageNumber,
                     //query_by = string.Join(", ", fields)
                     query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name))

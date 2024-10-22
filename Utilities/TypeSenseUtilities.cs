@@ -115,7 +115,7 @@ namespace PadronProveedoresAPI.Utilities
 
         public async Task<string> GetAllProveedores(string collectionName, SearchParameters searchParameters)
         {
-            var queryString = $"?q={searchParameters.q}&limit={searchParameters.limit}";
+            var queryString = $"?q={searchParameters.q}&per_page={searchParameters.per_page}";
             var url = $"/collections/{collectionName}/documents/search{queryString}";
 
             var response = await _httpClient.GetAsync(url);
@@ -136,7 +136,8 @@ namespace PadronProveedoresAPI.Utilities
             var result = new
             {
                 results = documents,
-                count = found
+                count = found,
+                returned = documents.Count
             };
 
             // Serializar el objeto JSON
@@ -147,7 +148,7 @@ namespace PadronProveedoresAPI.Utilities
 
         public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
         {
-            var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&limit={searchParameters.limit}";
+            var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&per_page={searchParameters.per_page}";
 
             if (!string.IsNullOrEmpty(searchParameters.query_by))
             {
@@ -174,7 +175,8 @@ namespace PadronProveedoresAPI.Utilities
             var result = new
             {
                 results = documents,
-                count = found
+                count = found,
+                returned = documents.Count
             };
 
             // Serializar el objeto JSON
