@@ -126,12 +126,23 @@ namespace PadronProveedoresAPI.Utilities
 
             var documents = jsonDoc.RootElement.GetProperty("hits")
                 .EnumerateArray()
-                .Select(hit => hit.GetProperty("document").GetRawText())
+                .Select(hit => JsonDocument.Parse(hit.GetProperty("document").GetRawText()))
+                .Select(doc => doc.RootElement)
                 .ToList();
 
-            var documentsStr = string.Join(", ", documents);
+            var found = jsonDoc.RootElement.GetProperty("found").GetInt32();
 
-            return documentsStr;
+            // Crear un objeto JSON con los resultados y el número de resultados encontrados
+            var result = new
+            {
+                results = documents,
+                count = found
+            };
+
+            // Serializar el objeto JSON
+            var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+
+            return json;
         }
 
         public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
@@ -152,14 +163,24 @@ namespace PadronProveedoresAPI.Utilities
             var jsonDoc = JsonDocument.Parse(responseBody);
 
             var documents = jsonDoc.RootElement.GetProperty("hits")
-                .EnumerateArray()
-                .Select(hit => hit.GetProperty("document").GetRawText())
-                .ToList();
+            .EnumerateArray()
+            .Select(hit => JsonDocument.Parse(hit.GetProperty("document").GetRawText()))
+            .Select(doc => doc.RootElement)
+            .ToList();
 
-            var documentsStr = string.Join(", ", documents);
-            //var documentsJson = JsonSerializer.Serialize(documents);
+            var found = jsonDoc.RootElement.GetProperty("found").GetInt32();
 
-            return documentsStr;
+            // Crear un objeto JSON con los resultados y el número de resultados encontrados
+            var result = new
+            {
+                results = documents,
+                count = found
+            };
+
+            // Serializar el objeto JSON
+            var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+
+            return json;
         }
 
     }
