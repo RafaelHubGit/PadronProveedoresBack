@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 //using Newtonsoft.Json;
 using PadronProveedoresAPI.Models.Project;
@@ -31,64 +33,73 @@ namespace PadronProveedoresAPI.Utilities
                 TSMapped.activo = proveedor.Activo;
                 TSMapped.numeroProveedor = proveedor.NumeroProveedor ?? string.Empty;
 
-                TSMapped.datosProveedores = new DatosProveedoresTypeSenseSchema();
+                //TSMapped.datosProveedores = new DatosProveedoresTypeSenseSchema();
 
-                TSMapped.datosProveedores.numeroRefrendo = (proveedor.DatosProveedores?.Select(dp => dp.NumeroRefrendo?.ToString()).ToArray()) ?? Array.Empty<string>();
-                TSMapped.datosProveedores.tipoProveedor = proveedor.DatosProveedores?
+                TSMapped.numeroRefrendo = (proveedor.DatosProveedores?.Select(dp => dp.NumeroRefrendo?.ToString()).ToArray()) ?? Array.Empty<string>();
+                TSMapped.tipoProveedor = proveedor.DatosProveedores?
                     .Select(dp => dp.TipoProveedor)
                     .Distinct()
                     .Select(TipoProveedorDescripcion)
                     .ToArray() ?? Array.Empty<string>();
-                TSMapped.datosProveedores.observaciones = proveedor.DatosProveedores?
+                TSMapped.observaciones = proveedor.DatosProveedores?
                     .Select(dp => dp.Observaciones)
                     .Distinct()
                     .ToArray() ?? Array.Empty<string>();
-                TSMapped.datosProveedores.esRepse = proveedor.DatosProveedores?
+                TSMapped.esRepse = proveedor.DatosProveedores?
                     .Select(dp => dp.EsRepse)
                     .Distinct()
                     .ToArray() ?? Array.Empty<bool>();
-                TSMapped.datosProveedores.tieneDocumentos = proveedor.DatosProveedores?
+                TSMapped.tieneDocumentos = proveedor.DatosProveedores?
                     .Select( dp => dp.TieneDocumentos )
                     .Distinct()
                     .ToArray() ?? Array.Empty<bool>();
 
-                TSMapped.datosProveedores.domicilio = new DomicilioTypeSenseSchema();
+                //TSMapped.datosProveedores.domicilio = new DomicilioTypeSenseSchema();
 
-                TSMapped.datosProveedores.domicilio.calle = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Calle;
-                TSMapped.datosProveedores.domicilio.estado = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Estado;
-                TSMapped.datosProveedores.domicilio.municipio = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Municipio;
-                TSMapped.datosProveedores.domicilio.colonia = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Colonia;
-                TSMapped.datosProveedores.domicilio.codigoPostal = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.CodigoPostal;
-                TSMapped.datosProveedores.domicilio.direccionInternacional = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.DireccionInternacional;
+                //TSMapped.datosProveedores.domicilio.calle = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Calle;
+                //TSMapped.datosProveedores.domicilio.estado = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Estado;
+                //TSMapped.datosProveedores.domicilio.municipio = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Municipio;
+                //TSMapped.datosProveedores.domicilio.colonia = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.Colonia;
+                //TSMapped.datosProveedores.domicilio.codigoPostal = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.CodigoPostal;
+
+                
+                var domicilio = proveedor.DatosProveedores?
+                    .FirstOrDefault()?
+                    .Domicilio?
+                    .FirstOrDefault();
+
+                TSMapped.domicilio = $"{domicilio?.Calle}, Colonia. {domicilio?.Colonia}, c.p. {domicilio?.CodigoPostal}, {domicilio?.Municipio}, {domicilio?.Estado}";
+
+                TSMapped.domicilioInternacional = proveedor.DatosProveedores?.FirstOrDefault()?.Domicilio?.FirstOrDefault()?.DireccionInternacional;
 
                 //TSMapped.datosProveedores.representantes = new RepresentanteTypeSenseSchema();
                 //TSMapped.datosProveedores.contacto = new ContactoTypeSenseSchema();
                 //TSMapped.datosProveedores.girosComerciales = new GirosComercialesTypeSenseSchema();
                 //TSMapped.datosProveedores.documentos = new DocumentosTypeSenseSchema();
-                TSMapped.datosProveedores.inactivo = new InactivoTypeSenseSchema();
+                //TSMapped./*datosProveedores*/.inactivo = new InactivoTypeSenseSchema();
 
-                TSMapped.datosProveedores.representantes = proveedor.DatosProveedores?
+                TSMapped.representantes = proveedor.DatosProveedores?
                         .Where(dp => dp.Representantes != null)
                         .SelectMany(dp => dp.Representantes)
                         .Select(r => r.Representante)
                         .Distinct()
                         .ToArray() ?? Array.Empty<string>();
 
-                TSMapped.datosProveedores.contacto = proveedor.DatosProveedores?
+                TSMapped.contacto = proveedor.DatosProveedores?
                         .Where(dp => dp.Contactos != null)
                         .SelectMany(dp => dp.Contactos)
                         .Select(c => c.Contactos)
                         .Distinct()
                         .ToArray() ?? Array.Empty<string>();
 
-                TSMapped.datosProveedores.girosComerciales = proveedor.DatosProveedores?
+                TSMapped.girosComerciales = proveedor.DatosProveedores?
                         .Where(dp => dp.GirosComerciales != null)
                         .SelectMany(dp => dp.GirosComerciales)
                         .Select(gc => gc.GiroComercial)
                         .Distinct()
                         .ToArray() ?? Array.Empty<string>();
 
-                TSMapped.datosProveedores.documentos = proveedor.DatosProveedores?
+                TSMapped.documentos = proveedor.DatosProveedores?
                         .Where(dp => dp.Documentos != null)
                         .SelectMany(dp => dp.Documentos)
                         .Select(d => d.NombreDocumento)
@@ -100,13 +111,18 @@ namespace PadronProveedoresAPI.Utilities
                         .SelectMany( dp => dp.Inactivos )
                         .FirstOrDefault();
 
-                TSMapped.datosProveedores.inactivo = new InactivoTypeSenseSchema
-                {
-                    observacion = inactivos?.Observacion ?? string.Empty,
-                    fechaInicio = inactivos?.FechaInicio.ToString("yyyy-MM-dd") ?? string.Empty,
-                    fechaFin = inactivos?.FechaFin.ToString("yyyy-MM-dd") ?? string.Empty,
-                    fechaDiarioOficialFederacion = inactivos?.FechaDiarioOficialFederacion.ToString("yyyy-MM-dd") ?? string.Empty
-                };
+                TSMapped.inactivoObservacion = inactivos?.Observacion ?? string.Empty;
+                TSMapped.inactivoFechaFin = inactivos?.FechaInicio.ToString("yyyy-MM-dd") ?? string.Empty;
+                TSMapped.inactivoFechaFin = inactivos?.FechaFin.ToString("yyyy-MM-dd") ?? string.Empty;
+                TSMapped.inactivoFechaDiarioOficialFederacion = inactivos?.FechaDiarioOficialFederacion.ToString("yyyy-MM-dd") ?? string.Empty;
+
+                //TSMapped.datosProveedores.inactivo = new InactivoTypeSenseSchema
+                //{
+                //    observacion = inactivos?.Observacion ?? string.Empty,
+                //    fechaInicio = inactivos?.FechaInicio.ToString("yyyy-MM-dd") ?? string.Empty,
+                //    fechaFin = inactivos?.FechaFin.ToString("yyyy-MM-dd") ?? string.Empty,
+                //    fechaDiarioOficialFederacion = inactivos?.FechaDiarioOficialFederacion.ToString("yyyy-MM-dd") ?? string.Empty
+                //};
 
 
                 //var TSMappedJson = JsonSerializer.Serialize(TSMapped);
@@ -121,13 +137,68 @@ namespace PadronProveedoresAPI.Utilities
 
         public class ProveedorTypeSenseSchema
         {
+            [JsonPropertyName("idProveedor")]
             public int idProveedor { get; set; }
+
+            [JsonPropertyName("rfc")]
             public string? rfc { get; set; }
+
+            [JsonPropertyName("razon social")]
             public string? razonSocial { get; set; }
+
+            [JsonPropertyName("fecha alta")]
             public string fechaAlta { get; set; }
+
+            [JsonPropertyName("activo")]
             public bool activo { get; set; }
+
+            [JsonPropertyName("numero proveedor")]
             public string numeroProveedor { get; set; }
-            public DatosProveedoresTypeSenseSchema? datosProveedores { get; set; }
+
+            [JsonPropertyName("numeroRefrendo")]
+            public string[]? numeroRefrendo { get; set; }
+
+            [JsonPropertyName("tipoProveedor")]
+            public string[]? tipoProveedor { get; set; }
+
+            [JsonPropertyName("observaciones")]
+            public string[]? observaciones { get; set; }
+
+            [JsonPropertyName("esRepse")]
+            public bool[]? esRepse { get; set; }
+
+            [JsonPropertyName("tieneDocumentos")]
+            public bool[]? tieneDocumentos { get; set; }
+
+            [JsonPropertyName("Direccion")]
+            public string? domicilio { get; set; }
+
+            [JsonPropertyName("Dreccion Internacional")]
+            public string? domicilioInternacional { get; set; }
+
+            [JsonPropertyName("representante")]
+            public string[]? representantes { get; set; }
+
+            [JsonPropertyName("contactos")]
+            public string[]? contacto { get; set; }
+
+            [JsonPropertyName("giros comerciales")]
+            public string[]? girosComerciales { get; set; }
+
+            [JsonPropertyName("documentos")]
+            public string[]? documentos { get; set; }
+
+            [JsonPropertyName("inactivo observacion")]
+            public string? inactivoObservacion { get; set; }
+
+            [JsonPropertyName("inactivo fechaInicio")]
+            public string? inactivoFechaInicio { get; set; }
+
+            [JsonPropertyName("inactivo fechaFin")]
+            public string? inactivoFechaFin { get; set; }
+
+            [JsonPropertyName("inactivo fecha dof")]
+            public string? inactivoFechaDiarioOficialFederacion { get; set; }
         }
 
         public class DatosProveedoresTypeSenseSchema
