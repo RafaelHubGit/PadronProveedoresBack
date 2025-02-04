@@ -24,10 +24,10 @@ namespace PadronProveedoresAPI.Utilities
                 {
                     new { name = "idProveedor", type = "int32", facet = false, optional = false },
                     new { name = "rfc", type = "string", facet = true, optional = false },
-                    new { name = "razon social", type = "string", facet = true, optional = false },
-                    new { name = "fecha alta", type = "string", facet = false, optional = false },
+                    new { name = "razonSocial", type = "string", facet = true, optional = false },
+                    new { name = "fechaAlta", type = "string", facet = false, optional = false },
                     new { name = "activo", type = "bool", facet = true, optional = false },
-                    new { name = "numero proveedor", type = "string", facet = true, optional = false },
+                    new { name = "numeroProveedor", type = "string", facet = true, optional = false },
 
                     new { name = "numeroRefrendo", type = "string[]", facet = true, optional = true },
                     new { name = "tipoProveedor", type = "string[]", facet = true, optional = true },
@@ -41,20 +41,20 @@ namespace PadronProveedoresAPI.Utilities
                     //new { name = "datosProveedores.domicilio.colonia", type = "string", facet = true, optional = true },
                     //new { name = "datosProveedores.domicilio.codigoPostal", type = "string", facet = true, optional = true },
                     new { name = "Direccion", type = "string", facet = true, optional = true},
-                    new { name = "Dreccion Internacional", type = "string", facet = false, optional = true },
+                    new { name = "DreccionInternacional", type = "string", facet = false, optional = true },
 
-                    new { name = "representante", type = "string[]", facet = true, optional = true },
+                    new { name = "representantes", type = "string[]", facet = true, optional = true },
 
                     new { name = "contactos", type = "string[]", facet = false, optional = true },
 
-                    new { name = "giros comerciales", type = "string[]", facet = true, optional = true },
+                    new { name = "girosComerciales", type = "string[]", facet = true, optional = true },
 
                     new { name = "documentos", type = "string[]", facet = true, optional = true },
 
-                    new { name = "inactivo observacion", type = "string", facet = false, optional = true },
-                    new { name = "inactivo fechaInicio", type = "string", facet = false, optional = true },
-                    new { name = "inactivo fechaFin", type = "string", facet = false, optional = true },
-                    new { name = "inactivo fecha dof", type = "string", facet = false, optional = true }
+                    new { name = "inactivoObservacion", type = "string", facet = false, optional = true },
+                    new { name = "inactivoFechaInicio", type = "string", facet = false, optional = true },
+                    new { name = "inactivoFechaFin", type = "string", facet = false, optional = true },
+                    new { name = "inactivoFechaDOF", type = "string", facet = false, optional = true }
 
                 },
                 default_sorting_field = "idProveedor", // Campo para ordenar resultados

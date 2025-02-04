@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Newtonsoft.Json;
 using PadronProveedoresAPI.Data.Repository.Project;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using PadronProveedoresAPI.Models.Project;
 
 namespace PadronProveedoresAPI.Services.Project
@@ -16,16 +17,17 @@ namespace PadronProveedoresAPI.Services.Project
 
         public async Task<string> GetProveedorByNumeroProveedorAsync(string NumeroProveedor)
         {
+
             var jsonReponse = await _repository.GetProveedorByNumeroProveedorAsync(NumeroProveedor);
             var proveedoresString = await ReturnArrayProveedorStringAsync(jsonReponse);
 
             return proveedoresString;
         }
 
-        public async Task<string> GetAllProveedoresAsync()
+        public async Task<string> GetAllProveedoresAsync( string NumerosProveedor = "" )
         {
 
-            var jsonReponse = await _repository.GetAllProveedoresAsync();
+            var jsonReponse = await _repository.GetAllProveedoresAsync(NumerosProveedor);
             var proveedoresString = await ReturnArrayProveedorStringAsync(jsonReponse);
 
             return proveedoresString;

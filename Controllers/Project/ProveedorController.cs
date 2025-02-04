@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using PadronProveedoresAPI.Services.Project;
 
 namespace PadronProveedoresAPI.Controllers.Project
@@ -10,16 +11,31 @@ namespace PadronProveedoresAPI.Controllers.Project
     {
 
         private readonly ProveedorService _service;
+        private readonly CustomLogger _logger;
 
-        public ProveedorController(ProveedorService proveedorService)
+        public ProveedorController(
+            ProveedorService proveedorService,
+            CustomLogger logger
+        )
         { 
             _service = proveedorService;
+            _logger = logger;
         }
 
 
         [HttpGet("ByNumeroProveedor/{NumeroProveedor}")]
         public async Task<IActionResult> GetProveedorByNumeroProveedor(string NumeroProveedor)
         {
+            _logger.LogInformationWithContext(
+                "Consultando proveedor con número: {NumeroProveedor}",
+                "ProveedorController",
+                ("NumeroProveedor", NumeroProveedor),
+                ("Usuario", "usuario"),
+                ("RequestPath", HttpContext.Request.Path),
+                ("RequestMethod", HttpContext.Request.Method)
+            );
+
+
             var proveedores = await _service.GetProveedorByNumeroProveedorAsync(NumeroProveedor);
 
             return Ok(proveedores);

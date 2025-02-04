@@ -12,8 +12,8 @@ namespace PadronProveedoresAPI.Models.Project
             public DateTime FechaAlta { get; set; }
             public bool Activo { get; set; }
 
-            [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
-            public string? NumeroProveedor { get; set; }
+            //[JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
+            //public string? NumeroProveedor { get; set; }
             public List<DatosProveedor>? DatosProveedores { get; set; }
         }
 
@@ -23,6 +23,9 @@ namespace PadronProveedoresAPI.Models.Project
 
             [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
             public string? NumeroProveedor { get; set; }
+
+            public string? Estratificacion { get; set; }
+            public string? TipoEntidad { get; set;  }
 
             [JsonConverter(typeof(PadronProveedoresAPI.Utilities.Utilidades.StringConverter))]
             public string? NumeroRefrendo { get; set; }
@@ -37,7 +40,7 @@ namespace PadronProveedoresAPI.Models.Project
             public bool Activo { get; set; }
             public List<Domicilio>? Domicilio { get; set; }
             public List<Representantes>? Representantes { get; set; }
-            public List<Contacto>? Contactos { get; set; }
+            public List<Contactos>? Contactos { get; set; }
             public List<GirosComerciales>? GirosComerciales { get; set; }
             public List<Inactivo>? Inactivos { get; set; }
             public List<Documento>? Documentos { get; set; }
@@ -60,16 +63,15 @@ namespace PadronProveedoresAPI.Models.Project
 
         public class Representantes
         {
-            public string? Representante { get; set; }
+            public string? Nombre { get; set; }
             public string? Tipo { get; set; }
             public string? Nota { get; set; }
             public bool Activo { get; set; }
         }
 
-        public class Contacto
+        public class Contactos
         {
-            public string? Tipo { get; set; }
-            public string? Contactos { get; set; }
+            public string? Contacto { get; set; }
             public string? Nota { get; set; }
             public bool Activo { get; set; }
         }
@@ -92,8 +94,7 @@ namespace PadronProveedoresAPI.Models.Project
         {
             public int IdDocumentos { get; set; }
             public string? NombreDocumento { get; set; }
-            public string? TipoDocumento { get; set; }
-            public DateTime FechaCarga { get; set; }
+            public string? Nota { get; set; }
         }
 
     }

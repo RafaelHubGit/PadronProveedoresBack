@@ -36,11 +36,25 @@ namespace PadronProveedoresAPI.Services.Project
             var createCollectionResult = await _typeSenseUtilities.CreateCollectionAsync(collectionName);
             Console.WriteLine("coleccion creada : " );
 
-            var proveedores = await _service.GetAllProveedoresAsync();
+            //var proveedores = await _service.GetAllProveedoresAsync("354, 728, 189".Replace(" ", ""));
+            var proveedores = await _service.GetAllProveedoresAsync( "" );
             //var proveedores = await _service.GetProveedorScrollAsync(0, 2);
 
             // Convierte el json al modelo de Proveedores 
-            var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                    {
+                        new JsonStringEnumConverter()
+                    }
+            };
+            var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores, options);
+
+            foreach (var proveedor in proveedoresLista)
+            {
+                Console.WriteLine(JsonSerializer.Serialize(proveedor, new JsonSerializerOptions { WriteIndented = true }));
+            }
 
             var mappingInstance = new ProveedorTypeSenseMapping();
             // Convierte del modelo de proveedores al modelo de TypeSense

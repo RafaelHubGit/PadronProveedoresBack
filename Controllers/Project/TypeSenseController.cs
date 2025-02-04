@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using PadronProveedoresAPI.Services.Project;
 
 namespace PadronProveedoresAPI.Controllers.Project
@@ -8,24 +9,47 @@ namespace PadronProveedoresAPI.Controllers.Project
     public class TypeSenseController : Controller
     {
         private readonly TypeSenseService _typeSenseService;
-        public TypeSenseController(TypeSenseService typeSenseService)
+        private readonly CustomLogger _logger;
+        public TypeSenseController(
+            TypeSenseService typeSenseService,
+            CustomLogger logger
+            )
         {
             _typeSenseService = typeSenseService;
+            _logger = logger;
         }
 
 
         [HttpGet("index")]
         public async Task<ActionResult> TypeSenseIndex()
         {
-            await _typeSenseService.IndexaPorveedores();
-            return Ok();
+            try {
+                await _typeSenseService.IndexaPorveedores();
+                return Ok();
+            } catch ( Exception ex) {
+                _logger.LogErrorWithContext(
+                    "Error al indexar proveedores a TypeSense",
+                    ex,
+                    "TypeSenseController"
+                    );
+                return StatusCode(500, "Ocurrio un error interno.");
+            }
         }
 
         [HttpGet("All")]
         public async Task<ActionResult> GetAllProveedores()
         {
-            var proveedoresTS = await _typeSenseService.GetAllDocumentsAsync();
-            return Ok(proveedoresTS);
+            try{
+                var proveedoresTS = await _typeSenseService.GetAllDocumentsAsync();
+                return Ok(proveedoresTS);
+            } catch ( Exception ex) {
+                _logger.LogErrorWithContext(
+                    "(GetAllProveedores) Error al consultar proveedores desde TypeSense",
+                    ex,
+                    "TypeSenseController"
+                    );
+                return StatusCode( 500, "Ocurrio un error interno.");
+            }
         }
 
         [HttpGet]
@@ -34,8 +58,20 @@ namespace PadronProveedoresAPI.Controllers.Project
             [FromQuery] int pageNumber = 1, 
             [FromQuery] int pageSize = 250)
         {
-            var proveedoresTs = await _typeSenseService.GetProveedoresQuery("proveedores",searchTerm, pageNumber, pageSize);
-            return Ok(proveedoresTs);
+            try{
+                var proveedoresTs = await _typeSenseService.GetProveedoresQuery("proveedores",searchTerm, pageNumber, pageSize);
+                return Ok(proveedoresTs);
+            } catch ( Exception ex) {
+                _logger.LogErrorWithContext(
+                    "(GetProveedoresQuery) Error al consultar proveedores desde TypeSense",
+                    ex,
+                    "TypeSenseController",
+                    ("searchTerm", searchTerm),
+                    ("pageNumber", pageNumber),
+                    ("pageSize", pageSize)
+                    );
+                return StatusCode( 500, "Ocurrio un error interno.");
+            }
         }
     }
 }

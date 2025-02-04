@@ -31,11 +31,13 @@ namespace PadronProveedoresAPI.Utilities
                 TSMapped.razonSocial = proveedor.RazonSocial;
                 TSMapped.fechaAlta = proveedor.FechaAlta.ToString("yyyy-MM-dd");
                 TSMapped.activo = proveedor.Activo;
-                TSMapped.numeroProveedor = proveedor.NumeroProveedor ?? string.Empty;
+                //TSMapped.numeroProveedor = proveedor.NumeroProveedor ?? string.Empty;
+                TSMapped.numeroProveedor = proveedor.DatosProveedores?.FirstOrDefault(dp => dp.NumeroProveedor != null)?.NumeroProveedor?.ToString() ?? string.Empty;
 
                 //TSMapped.datosProveedores = new DatosProveedoresTypeSenseSchema();
 
                 TSMapped.numeroRefrendo = (proveedor.DatosProveedores?.Select(dp => dp.NumeroRefrendo?.ToString()).ToArray()) ?? Array.Empty<string>();
+                TSMapped.fechaRefrendo = proveedor.DatosProveedores?.Select(dp => dp.FechaRefrendo).FirstOrDefault();
                 TSMapped.tipoProveedor = proveedor.DatosProveedores?
                     .Select(dp => dp.TipoProveedor)
                     .Distinct()
@@ -81,14 +83,14 @@ namespace PadronProveedoresAPI.Utilities
                 TSMapped.representantes = proveedor.DatosProveedores?
                         .Where(dp => dp.Representantes != null)
                         .SelectMany(dp => dp.Representantes)
-                        .Select(r => r.Representante)
+                        .Select(r => r.Nombre)
                         .Distinct()
                         .ToArray() ?? Array.Empty<string>();
 
-                TSMapped.contacto = proveedor.DatosProveedores?
+                TSMapped.contactos = proveedor.DatosProveedores?
                         .Where(dp => dp.Contactos != null)
                         .SelectMany(dp => dp.Contactos)
-                        .Select(c => c.Contactos)
+                        .Select(c => c.Contacto)
                         .Distinct()
                         .ToArray() ?? Array.Empty<string>();
 
@@ -143,20 +145,23 @@ namespace PadronProveedoresAPI.Utilities
             [JsonPropertyName("rfc")]
             public string? rfc { get; set; }
 
-            [JsonPropertyName("razon social")]
+            [JsonPropertyName("razonSocial")]
             public string? razonSocial { get; set; }
 
-            [JsonPropertyName("fecha alta")]
+            [JsonPropertyName("fechaAlta")]
             public string fechaAlta { get; set; }
 
             [JsonPropertyName("activo")]
             public bool activo { get; set; }
 
-            [JsonPropertyName("numero proveedor")]
+            [JsonPropertyName("numeroProveedor")]
             public string numeroProveedor { get; set; }
 
             [JsonPropertyName("numeroRefrendo")]
             public string[]? numeroRefrendo { get; set; }
+
+            [JsonPropertyName("fechaRefrendo")]
+            public DateTime? fechaRefrendo { get; set; }
 
             [JsonPropertyName("tipoProveedor")]
             public string[]? tipoProveedor { get; set; }
@@ -167,37 +172,40 @@ namespace PadronProveedoresAPI.Utilities
             [JsonPropertyName("esRepse")]
             public bool[]? esRepse { get; set; }
 
+            [JsonPropertyName("fechaRepse")]
+            public DateTime? fechaRepse { get; set; }
+
             [JsonPropertyName("tieneDocumentos")]
             public bool[]? tieneDocumentos { get; set; }
 
             [JsonPropertyName("Direccion")]
             public string? domicilio { get; set; }
 
-            [JsonPropertyName("Dreccion Internacional")]
+            [JsonPropertyName("DreccionInternacional")]
             public string? domicilioInternacional { get; set; }
 
-            [JsonPropertyName("representante")]
+            [JsonPropertyName("representantes")]
             public string[]? representantes { get; set; }
 
             [JsonPropertyName("contactos")]
-            public string[]? contacto { get; set; }
+            public string[]? contactos { get; set; }
 
-            [JsonPropertyName("giros comerciales")]
+            [JsonPropertyName("girosComerciales")]
             public string[]? girosComerciales { get; set; }
 
             [JsonPropertyName("documentos")]
             public string[]? documentos { get; set; }
 
-            [JsonPropertyName("inactivo observacion")]
+            [JsonPropertyName("inactivoObservacion")]
             public string? inactivoObservacion { get; set; }
 
-            [JsonPropertyName("inactivo fechaInicio")]
+            [JsonPropertyName("inactivoFechaInicio")]
             public string? inactivoFechaInicio { get; set; }
 
-            [JsonPropertyName("inactivo fechaFin")]
+            [JsonPropertyName("inactivoFechaFin")]
             public string? inactivoFechaFin { get; set; }
 
-            [JsonPropertyName("inactivo fecha dof")]
+            [JsonPropertyName("inactivoFechaDOF")]
             public string? inactivoFechaDiarioOficialFederacion { get; set; }
         }
 
@@ -212,7 +220,7 @@ namespace PadronProveedoresAPI.Utilities
             //public RepresentanteTypeSenseSchema? representantes { get; set; }
             public string[]? representantes { get; set; }
             //public ContactoTypeSenseSchema? contacto { get; set; }
-            public string[]? contacto { get; set; }
+            public string[]? contactos { get; set; }
             //public GirosComercialesTypeSenseSchema? girosComerciales { get; set; }
             public string[]? girosComerciales { get; set; }
             public string[]? documentos { get; set; }
