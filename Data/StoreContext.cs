@@ -4,7 +4,7 @@ using PadronProveedoresAPI.Models.Project;
 
 namespace PadronProveedoresAPI.Data
 {
-    public class StoreContext: DbContext
+    public class StoreContext : DbContext
     {
 
         public StoreContext(DbContextOptions<StoreContext> options) : base(options)
@@ -15,7 +15,7 @@ namespace PadronProveedoresAPI.Data
 
         //Project
         //public DbSet<ProveedorStringModel> proveedorStringModel { get; set; }
-        
+
 
 
         // Entities
@@ -29,7 +29,13 @@ namespace PadronProveedoresAPI.Data
         public DbSet<GenDocumentosModel> GenDocumentosModel { get; set; }
 
         // Catalogos
+        public DbSet<CatEstatusProveedorBloqueadoModel> CatEstatusProveedorBloqueadoModel { get; set; }
         public DbSet<CatGiroComercialModel> CatGiroComercialModel { get; set; }
+        public DbSet<CatEstratificacionModel> CatEstratificacionModel { get; set; }
+        public DbSet<CatGeneroModel> CatGeneroModel { get; set; }
+        public DbSet<CatTipoContactoModel> CatTipoContactoModel { get; set; }
+        public DbSet<CatTipoEntidadModel> CatTipoEntidadModel { get; set; }
+        public DbSet<CatTipoProveedorModel> CatTipoProveedorModel { get; set; }
 
         //Historico 
         public DbSet<GenDomicilioHistoricoModel> GenDomicilioHistoricoModel { get; set; }

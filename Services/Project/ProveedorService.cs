@@ -24,10 +24,10 @@ namespace PadronProveedoresAPI.Services.Project
             return proveedoresString;
         }
 
-        public async Task<string> GetAllProveedoresAsync( string NumerosProveedor = "" )
+        public async Task<string> GetAllProveedoresAsync(string NumerosProveedor = "", int pageSize = 100, int pageNumber = 1 )
         {
 
-            var jsonReponse = await _repository.GetAllProveedoresAsync(NumerosProveedor);
+            var jsonReponse = await _repository.GetAllProveedoresAsync(NumerosProveedor, pageSize, pageNumber);
             var proveedoresString = await ReturnArrayProveedorStringAsync(jsonReponse);
 
             return proveedoresString;

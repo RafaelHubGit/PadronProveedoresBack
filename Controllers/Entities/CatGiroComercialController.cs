@@ -30,30 +30,49 @@ namespace PadronProveedoresAPI.Controllers.Entities
         [HttpPost]
         public IActionResult CrearGiroComercial(CatGiroComercialModel giroComercial)
         {
-            _service.CrearGiroComercial(giroComercial);
-            return CreatedAtAction(nameof(GetGiroComercialPorId), new { idGiroComercial = giroComercial.IdGiroComercial }, giroComercial);
+            return Ok(_service.CrearGiroComercial(giroComercial));
+            //return CreatedAtAction(nameof(GetGiroComercialPorId), new { idGiroComercial = giroComercial.IdGiroComercial }, giroComercial);
         }
 
         [HttpPut("{idGiroComercial}")]
         public IActionResult ActualizarGiroComercial(int idGiroComercial, CatGiroComercialModel giroComercial)
         {
             giroComercial.IdGiroComercial = idGiroComercial;
-            _service.ActualizarGiroComercial(giroComercial);
-            return NoContent();
+            return Ok(_service.ActualizarGiroComercial(giroComercial));
+            //return NoContent();
         }
 
-        [HttpPatch("{idGiroComercial}/estado")]
-        public IActionResult EliminarGiroComercialLogico(int idGiroComercial)
+        [HttpPatch("eliminarLogico")]
+        public IActionResult EliminarGiroComercialLogico(int idGiroComercial, int idUsuario)
         {
-            _service.EliminarGiroComercialLogico(idGiroComercial);
+            _service.EliminarGiroComercialLogico(idGiroComercial, idUsuario);
             return NoContent();
         }
 
         [HttpDelete("{idGiroComercial}")]
         public IActionResult EliminarGiroComercialFisico(int idGiroComercial)
         {
-            _service.EliminarGiroComercialFisico(idGiroComercial);
-            return NoContent();
+            try
+            {
+                _service.EliminarGiroComercialFisico(idGiroComercial);
+                return NoContent(); // El registro fue eliminado correctamente
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Si el error es de clave foránea (547), devolvemos un error 400 (Bad Request)
+                if (ex.Message.Contains("No se puede eliminar el registro porque está siendo utilizado"))
+                {
+                    return Conflict(new { message = ex.Message }); //Regresa como codigo el 409 para poder manejarlo en el front
+                }
+
+                // Si es otro error, devolvemos un 500 (Internal Server Error)
+                return StatusCode(500, new { message = "Ocurrió un error interno.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otros tipos de excepciones generales
+                return StatusCode(500, new { message = "Ocurrió un error inesperado.", details = ex.Message });
+            }
         }
     }
 }

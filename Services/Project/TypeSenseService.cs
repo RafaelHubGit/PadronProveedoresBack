@@ -1,5 +1,6 @@
 ﻿//using Newtonsoft.Json;
 using PadronProveedoresAPI.Data.Repository.Project;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using PadronProveedoresAPI.Models.Project;
 using PadronProveedoresAPI.Utilities;
 using System.Collections;
@@ -17,61 +18,156 @@ namespace PadronProveedoresAPI.Services.Project
         //private readonly string _apiKey;
         private readonly ProveedorService _service;
         private readonly TypeSenseUtilities _typeSenseUtilities;
+        private readonly CustomLogger _logger;
         public TypeSenseService(string baseUrl,
                                 string apiKey,
-                                ProveedorService proveedorService)
+                                ProveedorService proveedorService,
+                                CustomLogger logger)
         {
             _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
             _httpClient.DefaultRequestHeaders.Add("X-TYPESENSE-API-KEY", apiKey);
 
             _service = proveedorService;
             _typeSenseUtilities = new TypeSenseUtilities(_httpClient);
+            _logger = logger;
         }
 
-        public async Task<bool> IndexaPorveedores( string collectionName = "proveedores" )
+        //public async Task<bool> IndexaPorveedores( string collectionName = "proveedores" )
+        //{
+
+        //    try {
+        //        await _typeSenseUtilities.DeleteCollectionIfExistsAsync(collectionName);
+
+        //        var createCollectionResult = await _typeSenseUtilities.CreateCollectionAsync(collectionName);
+        //        Console.WriteLine("coleccion creada : ");
+
+        //        var proveedores = await _service.GetAllProveedoresAsync("354, 728, 189".Replace(" ", ""));
+        //        //var proveedores = await _service.GetAllProveedoresAsync("");
+        //        //var proveedores = await _service.GetProveedorScrollAsync(0, 2);
+
+        //        // Convierte el json al modelo de Proveedores 
+        //        var options = new JsonSerializerOptions
+        //        {
+        //            PropertyNameCaseInsensitive = true,
+        //            Converters =
+        //                {
+        //                    new JsonStringEnumConverter()
+        //                }
+        //        };
+        //        var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores, options);
+
+        //        foreach (var proveedor in proveedoresLista)
+        //        {
+        //            Console.WriteLine(JsonSerializer.Serialize(proveedor, new JsonSerializerOptions { WriteIndented = true }));
+        //        }
+
+        //        var mappingInstance = new ProveedorTypeSenseMapping();
+        //        // Convierte del modelo de proveedores al modelo de TypeSense
+        //        var proveedoresListaTypeSenseMapped = mappingInstance.MappingSchemaTypeSense(proveedoresLista.ToList());
+
+        //        foreach (var proveedor in proveedoresListaTypeSenseMapped)
+        //        {
+
+        //            //Console.WriteLine($"IdProveedor: {JsonSerializer.Serialize(proveedor)}");
+
+        //            var documentJson = JsonSerializer.Serialize(proveedor);
+
+        //            var upsertResult = await _typeSenseUtilities.UpsertDocumentAsync(collectionName, documentJson);
+        //            Console.WriteLine($"Document Upserted Numero de proveedor: {proveedor.numeroProveedor} --- {upsertResult}");
+        //        }
+
+        //        return true;
+        //    } catch ( Exception ex ) {
+        //        // Registrar el error en los logs
+        //        _logger.LogErrorWithContext(
+        //            "Error al indexar proveedores en TypeSense",
+        //            ex,
+        //            "IndexaPorveedores",
+        //            ("CollectionName", collectionName)
+        //        );
+
+        //        // Opcional: Mostrar el error en la consola para depuración
+        //        Console.WriteLine($"Error: {ex.Message}");
+        //        Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+        //        // Retornar false para indicar que la operación falló
+        //        return false;
+        //    }
+
+        //}
+
+        public async Task<bool> IndexaPorveedores(string collectionName = "proveedores")
         {
-
-            await _typeSenseUtilities.DeleteCollectionIfExistsAsync(collectionName);
-
-            var createCollectionResult = await _typeSenseUtilities.CreateCollectionAsync(collectionName);
-            Console.WriteLine("coleccion creada : " );
-
-            //var proveedores = await _service.GetAllProveedoresAsync("354, 728, 189".Replace(" ", ""));
-            var proveedores = await _service.GetAllProveedoresAsync( "" );
-            //var proveedores = await _service.GetProveedorScrollAsync(0, 2);
-
-            // Convierte el json al modelo de Proveedores 
-            var options = new JsonSerializerOptions
+            try
             {
-                PropertyNameCaseInsensitive = true,
-                Converters =
+                await _typeSenseUtilities.DeleteCollectionIfExistsAsync(collectionName);
+
+                var createCollectionResult = await _typeSenseUtilities.CreateCollectionAsync(collectionName);
+                Console.WriteLine("Colección creada: " + collectionName);
+
+                int pageSize = 800; // Tamaño de la página
+                int pageNumber = 1; // Número de página inicial
+                bool hasMoreData = true;
+
+                while (hasMoreData) //Se usa paginacion para reducir la carga de trabajo y evitar que se alente o se rompa la conexion
+                {
+                    // Obtener los proveedores de la página actual
+                    var proveedores = await _service.GetAllProveedoresAsync("", pageSize, pageNumber);
+
+                    // Si no hay más datos, salir del bucle
+                    if (string.IsNullOrEmpty(proveedores) || proveedores == "[]")
                     {
-                        new JsonStringEnumConverter()
+                        hasMoreData = false;
+                        break;
                     }
-            };
-            var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores, options);
 
-            foreach (var proveedor in proveedoresLista)
-            {
-                Console.WriteLine(JsonSerializer.Serialize(proveedor, new JsonSerializerOptions { WriteIndented = true }));
+                    // Convierte el JSON al modelo de Proveedores
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new JsonStringEnumConverter() }
+                    };
+                    var proveedoresLista = JsonSerializer.Deserialize<ProveedorModel.Proveedor[]>(proveedores, options);
+
+                    foreach (var proveedor in proveedoresLista)
+                    {
+                        Console.WriteLine(JsonSerializer.Serialize(proveedor, new JsonSerializerOptions { WriteIndented = true }));
+                    }
+
+                    var mappingInstance = new ProveedorTypeSenseMapping();
+                    // Convierte del modelo de proveedores al modelo de TypeSense
+                    var proveedoresListaTypeSenseMapped = mappingInstance.MappingSchemaTypeSense(proveedoresLista.ToList());
+
+                    foreach (var proveedor in proveedoresListaTypeSenseMapped)
+                    {
+                        var documentJson = JsonSerializer.Serialize(proveedor);
+                        var upsertResult = await _typeSenseUtilities.UpsertDocumentAsync(collectionName, documentJson);
+                        Console.WriteLine($"Document Upserted - Número de proveedor: {proveedor.numeroProveedor} --- {upsertResult}");
+                    }
+
+                    // Incrementar el número de página para la siguiente iteración
+                    pageNumber++;
+                }
+
+                return true;
             }
-
-            var mappingInstance = new ProveedorTypeSenseMapping();
-            // Convierte del modelo de proveedores al modelo de TypeSense
-            var proveedoresListaTypeSenseMapped = mappingInstance.MappingSchemaTypeSense(proveedoresLista.ToList());
-
-            foreach (var proveedor in proveedoresListaTypeSenseMapped)
+            catch (Exception ex)
             {
+                // Registrar el error en los logs
+                _logger.LogErrorWithContext(
+                    "Error al indexar proveedores en TypeSense",
+                    ex,
+                    "IndexaPorveedores",
+                    ("CollectionName", collectionName)
+                );
 
-                //Console.WriteLine($"IdProveedor: {JsonSerializer.Serialize(proveedor)}");
+                // Opcional: Mostrar el error en la consola para depuración
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
 
-                var documentJson = JsonSerializer.Serialize(proveedor);
-
-                var upsertResult = await _typeSenseUtilities.UpsertDocumentAsync(collectionName, documentJson);
-                Console.WriteLine($"Document Upserted Numero de proveedor: { proveedor.numeroProveedor } --- {upsertResult}");
+                // Retornar false para indicar que la operación falló
+                return false;
             }
-
-            return true;
         }
 
         public async Task<string> GetAllDocumentsAsync(string collectionName = "proveedores")

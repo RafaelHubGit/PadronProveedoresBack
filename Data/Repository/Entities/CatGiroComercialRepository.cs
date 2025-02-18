@@ -54,11 +54,24 @@ namespace PadronProveedoresAPI.Data.Repository.Entities
             }
         }
 
-        public void CrearGiroComercial(CatGiroComercialModel giroComercial)
+        public CatGiroComercialModel CrearGiroComercial(CatGiroComercialModel giroComercial)
         {
             try {
-                _context.Database.ExecuteSqlRaw("EXEC sp_CrearGiroComercial @GiroComercial = {0}, @IdUsuarioAlta = {1}",
-                giroComercial.GiroComercial, giroComercial.IdUsuarioAlta);
+                //_context.Database.ExecuteSqlRaw("EXEC sp_CrearCatGiroComercial @GiroComercial = {0}, @IdUsuarioAlta = {1}",
+                //giroComercial.GiroComercial, giroComercial.IdUsuarioAlta);
+
+                var registro = _context.CatGiroComercialModel
+                    .FromSqlRaw("EXEC sp_CrearCatGiroComercial @GiroComercial = {0}, @IdUsuarioAlta = {1}",
+                    giroComercial.GiroComercial, giroComercial.IdUsuarioAlta)
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                if (registro == null)
+                {
+                    throw new InvalidOperationException("No se encontró el registro después de crear el giro comercial");
+                }
+
+                return registro;
             }
             catch (Exception ex)
             {
@@ -74,11 +87,23 @@ namespace PadronProveedoresAPI.Data.Repository.Entities
             
         }
 
-        public void ActualizarGiroComercial(CatGiroComercialModel giroComercial)
+        public CatGiroComercialModel ActualizarGiroComercial(CatGiroComercialModel giroComercial)
         {
             try{
-                _context.Database.ExecuteSqlRaw("EXEC sp_ActualizarGiroComercial @IdGiroComercial = {0}, @GiroComercial = {1}, @IdUsuarioModificacion = {2}, @Activo = {3}",
-               giroComercial.IdGiroComercial, giroComercial.GiroComercial, giroComercial.IdUsuarioModificacion, giroComercial.Activo);
+                // _context.Database.ExecuteSqlRaw("EXEC sp_ActualizarCatGiroComercial @IdGiroComercial = {0}, @GiroComercial = {1}, @IdUsuarioModificacion = {2}, @Activo = {3}",
+                //giroComercial.IdGiroComercial, giroComercial.GiroComercial, giroComercial.IdUsuarioModificacion, giroComercial.Activo);
+                var resultado = _context.CatGiroComercialModel
+                .FromSqlRaw("EXEC sp_ActualizarCatGiroComercial @IdGiroComercial = {0}, @GiroComercial = {1}, @IdUsuarioModificacion = {2}, @Activo = {3}",
+                    giroComercial.IdGiroComercial, giroComercial.GiroComercial, giroComercial.IdUsuarioModificacion, giroComercial.Activo)
+                .AsEnumerable()
+                .FirstOrDefault();
+
+                    if (resultado == null)
+                    {
+                        throw new InvalidOperationException("No se encontró el registro después de actualizar el giro comercial");
+                    }
+
+                return resultado;
             } catch (Exception ex) {
                 _logger.LogErrorWithContext(
                     "Actualizando Giro Comercial",

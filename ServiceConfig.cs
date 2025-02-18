@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
+using PadronProveedoresAPI.Data.Repository;
 using PadronProveedoresAPI.Data.Repository.Entities;
 using PadronProveedoresAPI.Data.Repository.Project;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using PadronProveedoresAPI.Services.Entities;
 using PadronProveedoresAPI.Services.Project;
 using PadronProveedoresAPI.Settings;
@@ -25,17 +27,21 @@ namespace PadronProveedoresAPI
             {
                 var pRepository = sp.GetRequiredService<ProveedorService>();
                 var typeSenseSettings = sp.GetRequiredService<IOptions<TypeSenseSettings>>().Value;
+                var logger = sp.GetRequiredService<CustomLogger>();
 
                 Debug.WriteLine("typeSenseSettings : " + typeSenseSettings);
                 Debug.WriteLine("VALOR URL : " + typeSenseSettings.ServerUrl);
                 Debug.WriteLine("VALOR KEY : " + typeSenseSettings.ApiKey);
 
-                return new TypeSenseService(typeSenseSettings.ServerUrl, typeSenseSettings.ApiKey, pRepository);
+                return new TypeSenseService(typeSenseSettings.ServerUrl, typeSenseSettings.ApiKey, pRepository, logger);
             });
 
 
 
             // Entities
+
+            services.AddScoped<GenericRepository>();
+
             services.AddScoped<GenProveedorRepository>();
             services.AddScoped<GenProveedorService>();
 
@@ -44,6 +50,16 @@ namespace PadronProveedoresAPI
 
             services.AddScoped<CatGiroComercialRepository>();
             services.AddScoped<CatGiroComercialService>();
+
+            services.AddScoped<CatEstratificacionService>();
+
+            services.AddScoped<CatGeneroService>();
+
+            services.AddScoped<CatTipoContactoService>();
+
+            services.AddScoped<CatTipoEntidadService>();
+
+            services.AddScoped<CatTipoProveedorService>();
 
             services.AddScoped<GenContactoRepository>();
             services.AddScoped<GenContactoService>();
@@ -72,6 +88,9 @@ namespace PadronProveedoresAPI
 
 
             // Direcciones Cat 
+
+            services.AddScoped<CatEstatusProveedorBloqueadoService>();
+
             services.AddScoped<CatEstadosRepository>();
             services.AddScoped<CatEstadosService>();
 

@@ -16,8 +16,8 @@ namespace PadronProveedoresAPI.Data.Repository.Project
     {
 
         private StoreContext _context;
-        private DataAccessHelper _dataAccessHelper = new DataAccessHelper();
         private readonly CustomLogger _logger;
+        private DataAccessHelper _dataAccessHelper;
 
         public ProveedorRepository(
             StoreContext storeContext,
@@ -26,6 +26,7 @@ namespace PadronProveedoresAPI.Data.Repository.Project
         {
             _context = storeContext;
             _logger = logger;
+            _dataAccessHelper = new DataAccessHelper(_logger);
         }
 
         // NumProveedor se puede envir con el sig formato, solo un numero 1 o separado por comas 1, 2, 3
@@ -61,20 +62,54 @@ namespace PadronProveedoresAPI.Data.Repository.Project
 
         }
 
-        public async Task<string> GetAllProveedoresAsync( string NumerosProveedor = "" )
+        //public async Task<string> GetAllProveedoresAsync( string NumerosProveedor = "" )
+        //{
+        //    try {
+        //        await using var connection = _context.Database.GetDbConnection();
+        //        await connection.OpenAsync();
+        //        using var command = connection.CreateCommand();
+        //        command.CommandText = "EXEC sp_ObtenerProveedoresPorNumeroProveedor @NumerosProveedor";
+        //        command.Parameters.Add(new SqlParameter("@NumerosProveedor", NumerosProveedor));
+
+        //        using (var result = await command.ExecuteReaderAsync())
+        //        {
+        //            return await _dataAccessHelper.LeerJsonDesdeResultSetAsync(result);
+        //        }
+        //    } catch ( Exception ex ){
+        //        _logger.LogErrorWithContext(
+        //            "(GetAllProveedoresAsync) Error al consultar proveedor ",
+        //            ex,
+        //            "ProveedorRepository",
+        //            ("Usuario", "usuario")
+        //        );
+        //        throw new Exception("Ocurrió un error interno.", ex);
+        //    } 
+
+
+        //}
+
+        public async Task<string> GetAllProveedoresAsync(string NumerosProveedor = "", int pageSize = 100, int pageNumber = 1)
         {
-            try {
-                await using var connection = _context.Database.GetDbConnection();
-                await connection.OpenAsync();
+            try
+            {
+                var connection = _context.Database.GetDbConnection();
+                await connection.OpenAsync(); // Abrir la conexion manualmente
                 using var command = connection.CreateCommand();
-                command.CommandText = "EXEC sp_ObtenerProveedoresPorNumeroProveedor @NumerosProveedor";
+                command.CommandText = "EXEC sp_ObtenerProveedoresPorNumeroProveedor @NumerosProveedor, @PageSize, @PageNumber";
                 command.Parameters.Add(new SqlParameter("@NumerosProveedor", NumerosProveedor));
+                command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                command.Parameters.Add(new SqlParameter("@PageNumber", pageNumber));
+
+                // Aumentar el tiempo de espera a 120 segundos (2 minutos)
+                command.CommandTimeout = 120;
 
                 using (var result = await command.ExecuteReaderAsync())
                 {
                     return await _dataAccessHelper.LeerJsonDesdeResultSetAsync(result);
                 }
-            } catch ( Exception ex ){
+            }
+            catch (Exception ex)
+            {
                 _logger.LogErrorWithContext(
                     "(GetAllProveedoresAsync) Error al consultar proveedor ",
                     ex,
@@ -82,9 +117,15 @@ namespace PadronProveedoresAPI.Data.Repository.Project
                     ("Usuario", "usuario")
                 );
                 throw new Exception("Ocurrió un error interno.", ex);
-            } 
-
-
+            }
+            finally
+            {
+                // Cerrar la conexión manualmente si está abierta
+                if (_context.Database.GetDbConnection().State == System.Data.ConnectionState.Open)
+                {
+                    await _context.Database.GetDbConnection().CloseAsync();
+                }
+            }
         }
 
         public async Task<string> GetProveedorScrollAsync(int page = 1, int pageSize = 10)

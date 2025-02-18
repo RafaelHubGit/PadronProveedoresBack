@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using PadronProveedoresAPI.MiddleWare.Logs;
 using System.Data.Common;
 using System.Text;
 
@@ -6,6 +7,13 @@ namespace PadronProveedoresAPI.Utilities
 {
     public class DataAccessHelper
     {
+        private readonly CustomLogger _logger;
+
+        public DataAccessHelper(CustomLogger logger)
+        {
+            _logger = logger;
+        }
+
 
         /// <summary>
         /// Lee un conjunto de resultados de una consulta SQL y los convierte en una cadena JSON.
@@ -20,14 +28,27 @@ namespace PadronProveedoresAPI.Utilities
             // Lee cada fila del conjunto de resultados
             while (await result.ReadAsync())
             {
-                // Si ya hay contenido en la cadena JSON, agrega una coma para separar los elementos
-                if (!string.IsNullOrEmpty(jsonBuilder.ToString()))
+                try
                 {
-                    jsonBuilder.Append("");
-                }
+                    // Si ya hay contenido en la cadena JSON, agrega una coma para separar los elementos
+                    if (!string.IsNullOrEmpty(jsonBuilder.ToString()))
+                    {
+                        jsonBuilder.Append("");
+                    }
 
-                // Obtiene el valor de la primera columna de la fila actual y lo agrega a la cadena JSON
-                jsonBuilder.Append(result.GetString(0));
+                    // Obtiene el valor de la primera columna de la fila actual y lo agrega a la cadena JSON
+                    jsonBuilder.Append(result.GetString(0));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogErrorWithContext(
+                        "Error al leer datos del DbDataReader",
+                        ex,
+                        "DataAccessHelper",
+                        ("Usuario", "usuario")
+                    );
+                    throw new Exception("Ocurrió un error al leer los datos.", ex);
+                }
             }
 
             // Obtiene la cadena JSON completa
@@ -43,4 +64,5 @@ namespace PadronProveedoresAPI.Utilities
             return jsonString;
         }
     }
+
 }
