@@ -148,41 +148,69 @@ namespace PadronProveedoresAPI.Utilities
 
         public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
         {
-            var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&per_page={searchParameters.per_page}";
+            try {
+                var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&per_page={searchParameters.per_page}";
 
-            if (!string.IsNullOrEmpty(searchParameters.query_by))
-            {
-                queryString += $"&query_by={searchParameters.query_by}";
+                if (!string.IsNullOrEmpty(searchParameters.query_by))
+                {
+                    queryString += $"&query_by={searchParameters.query_by}";
+                }
+
+                var url = $"/collections/{collectionName}/documents/search{queryString}";
+
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var jsonDoc = JsonDocument.Parse(responseBody);
+
+                var documents = jsonDoc.RootElement.GetProperty("hits")
+                    .EnumerateArray()
+                    .Select(hit =>
+                    {
+                        var doc = JsonDocument.Parse(hit.GetProperty("document").GetRawText());
+
+                        // Intentar obtener highlights, si no existen, asignar un array vacío []
+                        JsonElement highlights = hit.TryGetProperty("highlights", out var h) ? h : JsonDocument.Parse("[]").RootElement;
+
+                        return new
+                        {
+                            Document = doc.RootElement,
+                            Highlights = highlights
+                        };
+                    })
+                    .ToList();
+
+                var found = jsonDoc.RootElement.GetProperty("found").GetInt32();
+
+                // Crear un objeto JSON con los resultados y el número de resultados encontrados
+                var result = new
+                {
+                    results = documents,
+                    count = found,
+                    returned = documents.Count
+                };
+
+                // Serializar el objeto JSON
+                var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+
+                return json;
             }
-
-            var url = $"/collections/{collectionName}/documents/search{queryString}";
-
-            var response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            var jsonDoc = JsonDocument.Parse(responseBody);
-
-            var documents = jsonDoc.RootElement.GetProperty("hits")
-            .EnumerateArray()
-            .Select(hit => JsonDocument.Parse(hit.GetProperty("document").GetRawText()))
-            .Select(doc => doc.RootElement)
-            .ToList();
-
-            var found = jsonDoc.RootElement.GetProperty("found").GetInt32();
-
-            // Crear un objeto JSON con los resultados y el número de resultados encontrados
-            var result = new
+            catch (JsonException ex)
             {
-                results = documents,
-                count = found,
-                returned = documents.Count
-            };
-
-            // Serializar el objeto JSON
-            var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-
-            return json;
+                Console.WriteLine($"Error al procesar JSON: {ex.Message}");
+                return $"Error al procesar JSON: {ex.Message}";
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error al realizar la solicitud HTTP: {ex.Message}");
+                return $"Error al realizar la solicitud HTTP: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado: {ex.Message}");
+                return $"Error inesperado: {ex.Message}";
+            }
         }
 
     }

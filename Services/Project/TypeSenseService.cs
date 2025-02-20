@@ -198,7 +198,14 @@ namespace PadronProveedoresAPI.Services.Project
                     q = valor, // Busca en el campo específico
                     per_page = pageSize,
                     page = pageNumber,
-                    query_by = campo
+                    query_by = campo,
+                    sort_by = ["activo: desc", "numeroProveedor: desc", "razonSocial:desc"],
+
+                    num_typos = 0,
+                    prefix = false,
+                    exact_match = true,
+                    split_join_tokens = true,
+                    drop_tokens_threshold = 0.5
                 };
             }
             else
@@ -220,7 +227,14 @@ namespace PadronProveedoresAPI.Services.Project
                     per_page = pageSize,
                     page = pageNumber,
                     //query_by = string.Join(", ", fields)
-                    query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name))
+                    query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name)),
+                    sort_by = ["activo: desc", "numeroProveedor: desc", "razonSocial:desc"],
+
+                    num_typos = 0,                
+                    prefix = false,               
+                    exact_match = true,          
+                    split_join_tokens = true,
+                    drop_tokens_threshold = 0.5
                 };
             }
 
