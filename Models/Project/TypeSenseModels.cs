@@ -14,10 +14,12 @@ namespace PadronProveedoresAPI.Models.Project
         public string? query_by { get; set; }
         public string? filter_by { get; set; }
         public int? num_typos { get; set; } // No permitir errores tipográficos
-        public string[]? sort_by { get; set; }
+        public string? sort_by { get; set; }
 
-        public bool? prefix { get; set; }              // Evita coincidencias parciales no deseadas
+        public bool? prioritize_exact_match { get; set; }
+        public bool? prefix_search { get; set; }              // Evita coincidencias parciales no deseadas
         public bool? exact_match { get; set; }           // Permite buscar dentro de palabras más largas
+        public string? infix { get; set; }
         public bool? split_join_tokens { get; set; }      // Permite encontrar "mafur" dentro de "holamafures"
         public double? drop_tokens_threshold { get; set; } // No eliminar palabras clave importantes
     }

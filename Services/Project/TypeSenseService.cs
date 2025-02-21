@@ -189,7 +189,7 @@ namespace PadronProveedoresAPI.Services.Project
             var partes = query.Split(':');
             SearchParameters searchParameters;
 
-            if (partes.Length == 2)
+            if (partes.Length == 2) // Se debe corregir ya que de momento solo acepta 1 solo campo y valor y debe poder recibir mas de 1
             {
                 var campo = partes[0].Trim();
                 var valor = partes[1].Trim();
@@ -199,26 +199,26 @@ namespace PadronProveedoresAPI.Services.Project
                     per_page = pageSize,
                     page = pageNumber,
                     query_by = campo,
-                    sort_by = ["activo: desc", "numeroProveedor: desc", "razonSocial:desc"],
+                    sort_by = "_text_match:desc,activo: desc, razonSocial: desc",
+                    prioritize_exact_match = true,
 
                     num_typos = 0,
-                    prefix = false,
+                    prefix_search = false,
                     exact_match = true,
-                    split_join_tokens = true,
-                    drop_tokens_threshold = 0.5
+                    //infix = 
+                    //split_join_tokens = true,
+                    //drop_tokens_threshold = 0.5
                 };
             }
             else
             {
-                //var fields = typeof(ProveedorTypeSenseSchema).GetProperties().Select(p => p.Name);
-                var fields = typeof(ProveedorTypeSenseSchema)
-                    .GetProperties() 
-                    .Select(p => new
+                var fields = FieldDefinitions.ProveedorFields
+                    .Where(f => f.type == "string" || f.type == "string[]") // Filtra solo strings
+                    .Select(f => new
                     {
-                        Name = p.GetCustomAttributes(typeof(JsonPropertyNameAttribute), false)
-                            .Cast<JsonPropertyNameAttribute>()
-                            .FirstOrDefault()?.Name,
-                        Type = p.PropertyType.Name
+                        Name = f.name,
+                        Type = f.type,
+                        Infix = (f.infix ?? false) ? "always" : "off"
                     });
 
                 searchParameters = new SearchParameters
@@ -227,14 +227,17 @@ namespace PadronProveedoresAPI.Services.Project
                     per_page = pageSize,
                     page = pageNumber,
                     //query_by = string.Join(", ", fields)
-                    query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name)),
-                    sort_by = ["activo: desc", "numeroProveedor: desc", "razonSocial:desc"],
+                    //query_by = string.Join(", ", fields.Where(f => f.Type == "String" || f.Type == "String[]").Select(f => f.Name)),
+                    query_by = string.Join(", ", fields.Select(f => f.Name)),
+                    sort_by = "_text_match:desc,activo: desc, razonSocial: asc",
+                    prioritize_exact_match = true,
 
-                    num_typos = 0,                
-                    prefix = false,               
-                    exact_match = true,          
-                    split_join_tokens = true,
-                    drop_tokens_threshold = 0.5
+                    num_typos = 1,                
+                    prefix_search = true,               
+                    exact_match = true,
+                    infix = string.Join(", ", fields.Select(f => f.Infix))
+                    //split_join_tokens = true,
+                    //drop_tokens_threshold = 0.5
                 };
             }
 

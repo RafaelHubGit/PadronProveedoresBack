@@ -4,6 +4,7 @@ using System.Text.Json;
 using static PadronProveedoresAPI.Utilities.ProveedorTypeSenseMapping;
 using PadronProveedoresAPI.Utilities;
 using PadronProveedoresAPI.Models.Project;
+using PadronProveedoresAPI.Services.Project;
 
 namespace PadronProveedoresAPI.Utilities
 {
@@ -20,44 +21,39 @@ namespace PadronProveedoresAPI.Utilities
             var schema = new
             {
                 name = collectionName,
-                fields = new[]
-                {
-                    new { name = "idProveedor", type = "int32", facet = false, optional = false },
-                    new { name = "rfc", type = "string", facet = true, optional = false },
-                    new { name = "razonSocial", type = "string", facet = true, optional = false },
-                    new { name = "fechaAlta", type = "string", facet = false, optional = false },
-                    new { name = "activo", type = "bool", facet = true, optional = false },
-                    new { name = "numeroProveedor", type = "string", facet = true, optional = false },
+                fields = FieldDefinitions.ProveedorFields.ToArray(),
+            //{
+            //    new FieldDefinition { name = "idProveedor", type = "int32", facet = false, optional = false, sort = true },
+            //    new FieldDefinition { name = "rfc", type = "string", facet = true, optional = false, sort = true, infix= true },
+            //    new FieldDefinition { name = "razonSocial", type = "string", facet = false, optional = false, sort = true, infix= true },
+            //    new FieldDefinition { name = "fechaAlta", type = "string", facet = false, optional = false },
+            //    new FieldDefinition { name = "activo", type = "bool", facet = true, optional = false, sort = true },
+            //    new FieldDefinition { name = "numeroProveedor", type = "string", facet = true, optional = false, sort = true },
 
-                    new { name = "numeroRefrendo", type = "string[]", facet = true, optional = true },
-                    new { name = "tipoProveedor", type = "string[]", facet = true, optional = true },
-                    new { name = "observaciones", type = "string[]", facet = false, optional = true },
-                    new { name = "esRepse", type = "bool[]", facet = true, optional = true },
-                    new { name = "tieneDocumentos", type = "bool[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "numeroRefrendo", type = "string[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "tipoProveedor", type = "string[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "observaciones", type = "string[]", facet = false, optional = true, infix= true },
+            //    new FieldDefinition { name = "esRepse", type = "bool[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "tieneDocumentos", type = "bool[]", facet = true, optional = true },
 
-                    //new { name = "datosProveedores.domicilio.calle", type = "string", facet = false, optional = true },
-                    //new { name = "datosProveedores.domicilio.estado", type = "string", facet = true, optional = true },
-                    //new { name = "datosProveedores.domicilio.municipio", type = "string", facet = true, optional = true },
-                    //new { name = "datosProveedores.domicilio.colonia", type = "string", facet = true, optional = true },
-                    //new { name = "datosProveedores.domicilio.codigoPostal", type = "string", facet = true, optional = true },
-                    new { name = "Direccion", type = "string", facet = true, optional = true},
-                    new { name = "DreccionInternacional", type = "string", facet = false, optional = true },
+            //    new FieldDefinition { name = "Direccion", type = "string", facet = true, optional = true},
+            //    new FieldDefinition { name = "DreccionInternacional", type = "string", facet = false, optional = true },
 
-                    new { name = "representantes", type = "string[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "representantes", type = "string[]", facet = true, optional = true },
 
-                    new { name = "contactos", type = "string[]", facet = false, optional = true },
+            //    new FieldDefinition { name = "contactos", type = "string[]", facet = false, optional = true },
 
-                    new { name = "girosComerciales", type = "string[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "girosComerciales", type = "string[]", facet = true, optional = true },
 
-                    new { name = "documentos", type = "string[]", facet = true, optional = true },
+            //    new FieldDefinition { name = "documentos", type = "string[]", facet = true, optional = true },
 
-                    new { name = "inactivoObservacion", type = "string", facet = false, optional = true },
-                    new { name = "inactivoFechaInicio", type = "string", facet = false, optional = true },
-                    new { name = "inactivoFechaFin", type = "string", facet = false, optional = true },
-                    new { name = "inactivoFechaDOF", type = "string", facet = false, optional = true }
+            //    new FieldDefinition { name = "inactivoObservacion", type = "string", facet = false, optional = true },
+            //    new FieldDefinition { name = "inactivoFechaInicio", type = "string", facet = false, optional = true },
+            //    new FieldDefinition { name = "inactivoFechaFin", type = "string", facet = false, optional = true },
+            //    new FieldDefinition { name = "inactivoFechaDOF", type = "string", facet = false, optional = true }
 
-                },
-                default_sorting_field = "idProveedor", // Campo para ordenar resultados
+            //},
+            default_sorting_field = "idProveedor", // Campo para ordenar resultados
                 query_by = new[] { "*" }, // Permitir búsqueda en todos los campos
                 case_insensitive = true
             };
@@ -149,12 +145,19 @@ namespace PadronProveedoresAPI.Utilities
         public async Task<string> GetProveedoresQuery(string collectionName, SearchParameters searchParameters)
         {
             try {
-                var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&per_page={searchParameters.per_page}";
+                //var queryString = $"?q={searchParameters.q}&page={searchParameters.page}&per_page={searchParameters.per_page}";
 
-                if (!string.IsNullOrEmpty(searchParameters.query_by))
-                {
-                    queryString += $"&query_by={searchParameters.query_by}";
-                }
+                //if (!string.IsNullOrEmpty(searchParameters.query_by))
+                //{
+                //    queryString += $"&query_by={searchParameters.query_by}";
+                //}
+
+                var queryParams = typeof(SearchParameters)
+                .GetProperties()
+                .Where(p => p.GetValue(searchParameters) != null)
+                .Select(p => $"{p.Name}={p.GetValue(searchParameters)?.ToString()}");
+
+                var queryString = "?" + string.Join("&", queryParams);
 
                 var url = $"/collections/{collectionName}/documents/search{queryString}";
 
@@ -214,5 +217,21 @@ namespace PadronProveedoresAPI.Utilities
         }
 
     }
-    
+
+    public class FieldDefinition
+    {
+        public string name { get; set; }
+        public string type { get; set; }
+        public bool facet { get; set; }
+        public bool optional { get; set; }
+        public bool? sort { get; set; } = false;
+        public bool? infix { get; set; } = false;
+
+        public FieldDefinition()
+        {
+            sort ??= false; // Asegura que sort sea false si es null
+            infix ??= false;
+        }
+    }
+
 }
