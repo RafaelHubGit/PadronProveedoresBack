@@ -59,6 +59,8 @@ namespace PadronProveedoresAPI
 
             services.AddScoped<CatTipoEntidadService>();
 
+            services.AddScoped<CatMatrizArticulosFraccionesService>();
+
             services.AddScoped<CatTipoProveedorService>();
 
             services.AddScoped<GenContactoRepository>();

@@ -33,6 +33,7 @@ namespace PadronProveedoresAPI.Data
         public DbSet<CatGiroComercialModel> CatGiroComercialModel { get; set; }
         public DbSet<CatEstratificacionModel> CatEstratificacionModel { get; set; }
         public DbSet<CatGeneroModel> CatGeneroModel { get; set; }
+        public DbSet<CatMatrizArticulosFraccionesModel> CatMatrizArticulosFraccionesModel { get; set; }
         public DbSet<CatTipoContactoModel> CatTipoContactoModel { get; set; }
         public DbSet<CatTipoEntidadModel> CatTipoEntidadModel { get; set; }
         public DbSet<CatTipoProveedorModel> CatTipoProveedorModel { get; set; }
