@@ -11,6 +11,7 @@ using PadronProveedoresAPI.Settings;
 using Serilog.Formatting.Compact;
 using Serilog;
 using PadronProveedoresAPI.MiddleWare.Logs;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,12 @@ app.UseCors(builder =>
         .WithOrigins("http://localhost:5173") // Permitir tu origen específico
         .AllowAnyMethod()
         .AllowAnyHeader());
+
+app.UseStaticFiles(new StaticFileOptions // Se configura la carpeta wwwroot para servir archivos estaticos
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+    RequestPath = "/wwwroot"
+});
 
 app.UseHttpsRedirection();
 

@@ -15,3 +15,7 @@ obj/
 
 # Archivos de user secrets
 secrets.json
+
+wwwroot/
+
+logs/

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PadronProveedoresAPI.Models.ConfiguracionReportes;
 using PadronProveedoresAPI.Models.Entities;
 using PadronProveedoresAPI.Models.Project;
 
@@ -35,6 +36,7 @@ namespace PadronProveedoresAPI.Data
         public DbSet<CatGeneroModel> CatGeneroModel { get; set; }
         public DbSet<CatMatrizArticulosFraccionesModel> CatMatrizArticulosFraccionesModel { get; set; }
         public DbSet<CatTipoContactoModel> CatTipoContactoModel { get; set; }
+        public DbSet<CatTipoDocumentoModel> CatTipoDocumentoModel { get; set; }
         public DbSet<CatTipoEntidadModel> CatTipoEntidadModel { get; set; }
         public DbSet<CatTipoProveedorModel> CatTipoProveedorModel { get; set; }
 
@@ -47,6 +49,14 @@ namespace PadronProveedoresAPI.Data
         public DbSet<CatMunicipiosModel> CatMunicipiosModel { get; set; }
         public DbSet<CatColoniasModel> CatColoniasModel { get; set; }
         public DbSet<CatCodigosPostalesModel> CatCodigosPostalesModel { get; set; }
+
+
+        //Configuracion Reportes
+        public DbSet<CatReportesFirmantesModel> CatReportesFirmantesModel { get; set; }
+        public DbSet<CatReportesLogosModel> CatReportesLogosModel { get; set; }
+        public DbSet<CatReportesLeyendasModel> CatReportesLeyendasModel { get; set; }
+        public DbSet<GenReporte_FirmantesModel> GenReporte_FirmantesModel { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

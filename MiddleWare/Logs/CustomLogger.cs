@@ -73,5 +73,15 @@ namespace PadronProveedoresAPI.MiddleWare.Logs
                 Log.Error(ex, message);
             }
         }
+
+        internal void LogError(FileNotFoundException ex, string v)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void LogError(Exception ex, string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

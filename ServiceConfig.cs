@@ -3,6 +3,7 @@ using PadronProveedoresAPI.Data.Repository;
 using PadronProveedoresAPI.Data.Repository.Entities;
 using PadronProveedoresAPI.Data.Repository.Project;
 using PadronProveedoresAPI.MiddleWare.Logs;
+using PadronProveedoresAPI.Services.ConfiguracionReportes;
 using PadronProveedoresAPI.Services.Entities;
 using PadronProveedoresAPI.Services.Project;
 using PadronProveedoresAPI.Settings;
@@ -57,6 +58,8 @@ namespace PadronProveedoresAPI
 
             services.AddScoped<CatTipoContactoService>();
 
+            services.AddScoped<CatTipoDocumentoService>();
+
             services.AddScoped<CatTipoEntidadService>();
 
             services.AddScoped<CatMatrizArticulosFraccionesService>();
@@ -86,6 +89,13 @@ namespace PadronProveedoresAPI
 
             services.AddScoped<GenDocumentosRepository>();
             services.AddScoped<GenDocumentosService>();
+
+
+            // Configuracion de Reportes 
+            services.AddScoped<CatReportesFirmantesService>();
+            services.AddScoped<CatReportesLogosService>();
+            services.AddScoped<CatReportesLeyendasService>();
+            services.AddScoped<GenReporte_FirmantesService>();
 
 
 
